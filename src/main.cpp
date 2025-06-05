@@ -1,4 +1,7 @@
+#include <SFML/System.hpp>
+
 #include "player.h"
+#include "enemy.h"
 
 int main() 
 {
@@ -14,8 +17,15 @@ int main()
     // Player
     Player player(400, groundY);
 
+    // Enemy
+    Enemy enemy(400.f, groundY - 64.f);
+
+    sf::Clock clock;
+
     while (window.isOpen()) 
     {
+        float deltaTime = clock.restart().asSeconds();
+        
         sf::Event event;
         while (window.pollEvent(event)) 
         {
@@ -23,11 +33,17 @@ int main()
         }
 
         player.handleInput();
-        player.applyGravity(groundY);
 
         window.clear(sf::Color::White);
         window.draw(ground);
+
+        player.update(deltaTime);
         player.draw(window);
+        
+        enemy.update(deltaTime, player.sprite.getPosition());
+        enemy.draw(window);
+        
+
         window.display();
     }
 

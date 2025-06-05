@@ -1,23 +1,20 @@
 #ifndef PLAYER_H
-#define GAME_H
+#define PLAYER_H
 
-#include <SFML/Graphics.hpp>
-#include <iostream>
+#include "entity.h"
 
-class Player
+
+class Player : public Entity
 {
     public:
 
-        sf::Texture texture;
-        sf::Sprite sprite;
-        sf::Vector2f velocity;
-        bool onGround;
+        float speed;
+        float jumpStrength;
 
         Player(float x, float y);
 
         void handleInput();
-        void applyGravity(float groundY);
-        void draw(sf::RenderWindow& window); 
+        void update(float deltaTime) override; 
 };
 
 
