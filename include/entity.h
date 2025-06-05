@@ -19,7 +19,7 @@ class Entity
 
         virtual void update(float deltaTime) = 0;
         virtual void draw(sf::RenderWindow& window);
-        virtual sf::FloatRect getBounds() const;
+        virtual sf::FloatRect getHitbox() const;
 };
 
 #endif

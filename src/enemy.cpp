@@ -26,7 +26,7 @@ void Enemy::update(float deltaTime, const sf::Vector2f& playerPos)
 
     attacking = false;
 
-    if (distance > 10.f && distance < 400.f)
+    if (distance > 20.f && distance < 400.f)
     {
         sf::Vector2f direction = sf::Vector2(dx / distance, 0.f);
         sprite.move(direction * speed);
@@ -36,7 +36,7 @@ void Enemy::update(float deltaTime, const sf::Vector2f& playerPos)
         velocity.x = 0.f;
     }
     
-    if (distance <= 10.f) 
+    if (distance <= 20.f) 
     {
         attacking = true;
         std::cout << "ENEMY ATTACKING" << std::endl;
@@ -62,4 +62,10 @@ void Enemy::update(float deltaTime)
 bool Enemy::isAttacking() const
 {
     return attacking;
+}
+
+sf::FloatRect Enemy::getHitbox() const 
+{
+    sf::Vector2f pos = sprite.getPosition();
+    return sf::FloatRect(pos.x + 8.f, pos.y + 5.f, 36.f, 60.f);
 }

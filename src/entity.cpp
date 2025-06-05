@@ -7,7 +7,7 @@ void Entity::draw(sf::RenderWindow& window)
     window.draw(sprite);
 }
 
-sf::FloatRect Entity::getBounds() const 
+sf::FloatRect Entity::getHitbox() const 
 {
     return sprite.getGlobalBounds();
 }

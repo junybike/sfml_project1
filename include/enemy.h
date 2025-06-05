@@ -16,6 +16,8 @@ class Enemy : public Entity
         void update(float deltaTime, const sf::Vector2f& playerPos);
         void update(float deltaTime) override;
         bool isAttacking() const;
+
+        sf::FloatRect getHitbox() const override; 
 };
 
 #endif

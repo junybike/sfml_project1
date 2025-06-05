@@ -9,10 +9,10 @@ Player::Player(float x, float y)
 
     sprite.setTexture(texture);
     sprite.setPosition(x, y);
-    sprite.setScale(0.5f, 0.5f);
+    sprite.setScale(0.3f, 0.3f);
 
     speed = 150.f;
-    jumpStrength = 200.f;
+    jumpStrength = 500.f;
     velocity = {0.f, 0.f};
     onGround = false;
 }
@@ -41,15 +41,21 @@ void Player::update(float deltaTime)
 {
     handleInput();
 
-    const float gravity = 300.f;
+    const float gravity = 1500.f;
     velocity.y += gravity * deltaTime;
     sprite.move(velocity * deltaTime);
 
-    float groundY = 600.f;
+    float groundY = 550.f;
     if (sprite.getPosition().y + sprite.getGlobalBounds().height >= groundY)
     {
         sprite.setPosition(sprite.getPosition().x, groundY - sprite.getGlobalBounds().height);
         velocity.y = 0.f;
         onGround = true;
     }
+}
+
+sf::FloatRect Player::getHitbox() const 
+{
+    sf::Vector2f pos = sprite.getPosition();
+    return sf::FloatRect(pos.x + 10.f, pos.y + 5.f, 32.f, 64.f);
 }
