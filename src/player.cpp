@@ -9,7 +9,10 @@ Player::Player(float x, float y)
 
     sprite.setTexture(texture);
     sprite.setPosition(x, y);
-    sprite.setScale(0.3f, 0.3f);
+    sprite.setScale(1.f, 1.f);
+
+    frameWidth = sprite.getTexture()->getSize().x;
+    frameHeight = sprite.getTexture()->getSize().y;
 
     speed = 150.f;
     jumpStrength = 500.f;
@@ -20,16 +23,18 @@ Player::Player(float x, float y)
 void Player::handleInput() 
 {
     velocity.x = 0.f;
-
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) 
     {
         velocity.x = -speed;
+        sprite.setScale(-1.f, 1.f);
+        sprite.setOrigin(106, 0);
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) 
     {
         velocity.x = speed;
+        sprite.setScale(1.f, 1.f);
+        sprite.setOrigin(0, 0);
     }
-
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && onGround) 
     {
         velocity.y = -jumpStrength;
@@ -52,10 +57,4 @@ void Player::update(float deltaTime)
         velocity.y = 0.f;
         onGround = true;
     }
-}
-
-sf::FloatRect Player::getHitbox() const 
-{
-    sf::Vector2f pos = sprite.getPosition();
-    return sf::FloatRect(pos.x + 10.f, pos.y + 5.f, 32.f, 64.f);
 }

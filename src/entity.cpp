@@ -1,6 +1,6 @@
 #include "entity.h"
 
-Entity::Entity() : velocity(0.f, 0.f), onGround(false) {}
+Entity::Entity() : velocity(0.f, 0.f), onGround(false), isMoving(false), frameHeight(0), frameWidth(0) {}
 
 void Entity::draw(sf::RenderWindow& window)
 {
@@ -9,5 +9,6 @@ void Entity::draw(sf::RenderWindow& window)
 
 sf::FloatRect Entity::getHitbox() const 
 {
-    return sprite.getGlobalBounds();
+    sf::Vector2f pos = sprite.getPosition();
+    return sf::FloatRect(pos.x, pos.y, frameWidth, frameHeight);
 }

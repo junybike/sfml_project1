@@ -17,10 +17,13 @@ void SinglePlay::play(sf::RenderWindow& window)
     ground.setPosition(0, groundY);
 
     // Player
-    Player player(400.f, groundY);
+    Player player(100, 100);
 
     // Enemy
     Enemy enemy(400.f, groundY - 64.f);
+    
+    // Hitbox
+    sf::RectangleShape box1;
 
     while (!quit)
     {
@@ -46,6 +49,18 @@ void SinglePlay::play(sf::RenderWindow& window)
         player.update(deltaTime);
         player.draw(window);
 
+        display_hitbox(box1, player, window);
+
         window.display();
     }
+}
+
+void display_hitbox(sf::RectangleShape& box, Entity& entity, sf::RenderWindow& window)
+{
+    box.setPosition(entity.getHitbox().left, entity.getHitbox().top);
+    box.setSize(sf::Vector2f(entity.frameWidth, entity.frameHeight));
+    box.setFillColor(sf::Color::Transparent);
+    box.setOutlineColor(sf::Color::Red);
+    box.setOutlineThickness(1.f);
+    window.draw(box);
 }

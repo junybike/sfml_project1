@@ -15,7 +15,6 @@ class Player : public Entity
 
         void handleInput();
         void update(float deltaTime) override;
-        sf::FloatRect getHitbox() const override; 
 };
 
 

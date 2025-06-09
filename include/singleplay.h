@@ -17,4 +17,6 @@ class SinglePlay
         void play(sf::RenderWindow& window);
 };
 
+void display_hitbox(sf::RectangleShape& box1, Entity& entity, sf::RenderWindow& window);
+
 #endif

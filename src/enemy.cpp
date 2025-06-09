@@ -11,6 +11,9 @@ Enemy::Enemy(float x, float y)
     sprite.setPosition(x, y);
     sprite.setScale(0.1f, 0.1f);
 
+    frameWidth = 0;
+    frameHeight = 0;
+
     speed = 1.f;
     velocity = {0.f, 0.f};
     attacking = false;

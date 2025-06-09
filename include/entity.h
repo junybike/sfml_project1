@@ -12,7 +12,12 @@ class Entity
         sf::Texture texture;
         sf::Sprite sprite;
         sf::Vector2f velocity;
+
+        int frameWidth;
+        int frameHeight;
+
         bool onGround;
+        bool isMoving;
 
         Entity();
         virtual ~Entity() = default;
