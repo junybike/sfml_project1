@@ -30,7 +30,7 @@ int main()
     title.setPosition(200.f, 100.f);
     title.setFillColor(sf::Color::White);
 
-    sf::Text singlePlayer("Single Player", font, 32);
+    sf::Text singlePlayer("Singleplayer", font, 32);
     singlePlayer.setPosition(220.f, 200.f);
     sf::Text multiplayer("Multiplayer", font, 32);
     multiplayer.setPosition(220.f, 250.f);
@@ -102,41 +102,10 @@ int main()
         }
         else if (state == GameState::MULTI)
         {
-
+            state = GameState::LOBBY;
         }
         window.display();
     }
 
     return 0;
 }
-
-/*
-
-player.handleInput();
-
-window.clear(sf::Color::White);
-
-sf::RectangleShape box1;
-sf::RectangleShape box2;
-
-box1.setPosition(player.getHitbox().left, player.getHitbox().top);
-box1.setSize(sf::Vector2f(player.getHitbox().width, player.getHitbox().height));
-box1.setFillColor(sf::Color::Transparent);
-box1.setOutlineColor(sf::Color::Red);
-box1.setOutlineThickness(1.f);
-window.draw(box1);
-
-enemy.update(deltaTime, player.sprite.getPosition());
-enemy.draw(window);
-
-box2.setPosition(enemy.getHitbox().left, enemy.getHitbox().top);
-box2.setSize(sf::Vector2f(enemy.getHitbox().width, enemy.getHitbox().height));
-box2.setFillColor(sf::Color::Transparent);
-box2.setOutlineColor(sf::Color::Red);
-box2.setOutlineThickness(1.f);
-window.draw(box2);
-
-if (player.getHitbox().intersects(enemy.getHitbox())) {
-    std::cout << "Collision!\n";
-}
-*/

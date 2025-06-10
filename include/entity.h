@@ -5,6 +5,9 @@
 #include <iostream>
 #include <cmath>
 #include <unistd.h>
+#include <vector>
+
+#include "platform.h"
 
 class Entity 
 {
@@ -14,18 +17,27 @@ class Entity
         sf::Sprite sprite;
         sf::Vector2f velocity;
 
-        int frameWidth;
-        int frameHeight;
-
-        bool onGround;
-        bool isMoving;
-
         Entity();
-        virtual ~Entity() = default;
+        virtual ~Entity();
 
-        virtual void update(float deltaTime) = 0;
+        virtual void update(float deltaTime, std::vector<Platform>& platforms);
         virtual void draw(sf::RenderWindow& window);
         virtual sf::FloatRect getHitbox() const;        
+        virtual void applyGravity(float deltaTime, std::vector<Platform>& platforms);
+
+        sf::Texture& getTexture() const;
+        void setTexture(const std::string file);
+        sf::Sprite* getSprite() const;
+
+        int getFrameWidth() const;
+        void setFrameWidth(const int w);
+        int getFrameHeight() const;
+        void setFrameHeight(const int h); 
+
+        bool isOnGround() const;
+        void setOnGround(const bool option);
+        bool isMoving() const;
+        void setMoving(const bool option);
 
         bool isInvincible() const;
         void setInvincible(const bool option);
@@ -33,6 +45,12 @@ class Entity
         void setInvincibleTime(const float dt);
     
     private:
+
+        int frameWidth;
+        int frameHeight;
+
+        bool onGround;
+        bool moving;
 
         bool invincible;
         float invincibleTime;

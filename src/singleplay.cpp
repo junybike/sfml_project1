@@ -11,10 +11,17 @@ void SinglePlay::play(sf::RenderWindow& window)
     bool quit = false;
     
     // Ground
-    float groundY = 550;
-    sf::RectangleShape ground(sf::Vector2f(800, 50));
-    ground.setFillColor(sf::Color(0, 0, 0)); 
-    ground.setPosition(0, groundY);
+    // float groundY = 550;
+    // sf::RectangleShape ground(sf::Vector2f(800, 50));
+    // ground.setFillColor(sf::Color(0, 0, 0)); 
+    // ground.setPosition(0, groundY);
+
+    std::vector<Platform> platforms = 
+    {
+        Platform(0.f, 550.f, 800.f, 50.f),     // Ground
+        Platform(300.f, 400.f, 200.f, 20.f),   // Second floor
+        Platform(100.f, 300.f, 100.f, 20.f),   // Third floor
+    };
 
     // Player
     Player player(100, 100);
@@ -45,11 +52,15 @@ void SinglePlay::play(sf::RenderWindow& window)
         }
 
         window.clear(sf::Color(30, 30, 30));
-        window.draw(ground);
+        
+        for (const auto& p : platforms)
+        {
+            p.draw(window);
+        }
 
-        player.update(deltaTime);
+        player.update(deltaTime, platforms);
         player.draw(window);
-        enemy.update(deltaTime, player);
+        enemy.update(deltaTime, player, platforms);
         enemy.draw(window);
 
         display_hitbox(box1, player, window);
@@ -62,7 +73,7 @@ void SinglePlay::play(sf::RenderWindow& window)
 void display_hitbox(sf::RectangleShape& box, Entity& entity, sf::RenderWindow& window)
 {
     box.setPosition(entity.getHitbox().left, entity.getHitbox().top);
-    box.setSize(sf::Vector2f(entity.frameWidth, entity.frameHeight));
+    box.setSize(sf::Vector2f(entity.getFrameWidth(), entity.getFrameHeight()));
     box.setFillColor(sf::Color::Transparent);
     box.setOutlineColor(sf::Color::Red);
     box.setOutlineThickness(1.f);

@@ -11,16 +11,15 @@ Enemy::Enemy(float x, float y)
     sprite.setPosition(x, y);
     sprite.setScale(1.f, 1.f);
 
-    frameWidth = 80;
-    frameHeight = 80;
+    this->setFrameWidth(sprite.getTexture()->getSize().x);
+    this->setFrameHeight(sprite.getTexture()->getSize().y);
 
     speed = 1.f;
     velocity = {0.f, 0.f};
     attacking = false;
-    onGround = false;
 }
 
-void Enemy::update(float deltaTime, Entity& player) 
+void Enemy::update(float deltaTime, Entity& player, std::vector<Platform>& platforms) 
 {
     sf::Vector2 pos = sprite.getPosition();
     sf::Vector2f playerPos = player.sprite.getPosition();
@@ -50,23 +49,7 @@ void Enemy::update(float deltaTime, Entity& player)
         }    
     }
 
-    update(deltaTime);
-}
-
-void Enemy::update(float deltaTime)
-{
-    // Gravity
-    const float gravity = 1500.f;
-    velocity.y += gravity * deltaTime;
-    sprite.move(velocity * deltaTime);
-
-    float groundY = 550.f;
-    if (sprite.getPosition().y + sprite.getGlobalBounds().height >= groundY)
-    {
-        sprite.setPosition(sprite.getPosition().x, groundY - sprite.getGlobalBounds().height);
-        velocity.y = 0.f;
-        onGround = true;
-    }
+    applyGravity(deltaTime, platforms);
 }
 
 bool Enemy::isAttacking() const

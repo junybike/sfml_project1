@@ -10,7 +10,7 @@ class Player : public Entity
         Player(float x, float y);
 
         void handleInput();
-        void update(float deltaTime) override;
+        void update(float deltaTime, std::vector<Platform>& platforms) override;
 
     private:
 
