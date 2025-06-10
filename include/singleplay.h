@@ -11,10 +11,12 @@ class SinglePlay
 {
     public: 
 
-        int uptime;
-
         SinglePlay();
         void play(sf::RenderWindow& window);
+    
+    private:
+
+        int uptime;
 };
 
 void display_hitbox(sf::RectangleShape& box1, Entity& entity, sf::RenderWindow& window);

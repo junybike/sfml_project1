@@ -16,8 +16,6 @@ Player::Player(float x, float y)
 
     speed = 150.f;
     jumpStrength = 500.f;
-    velocity = {0.f, 0.f};
-    onGround = false;
 }
 
 void Player::handleInput() 
@@ -46,6 +44,7 @@ void Player::update(float deltaTime)
 {
     handleInput();
 
+    // Gravity
     const float gravity = 1500.f;
     velocity.y += gravity * deltaTime;
     sprite.move(velocity * deltaTime);
@@ -56,5 +55,16 @@ void Player::update(float deltaTime)
         sprite.setPosition(sprite.getPosition().x, groundY - sprite.getGlobalBounds().height);
         velocity.y = 0.f;
         onGround = true;
+    }
+
+    // Temporary invincible after damage
+    if (this->isInvincible())
+    {
+        this->setInvincibleTime(deltaTime + getInvincibleTime());
+        if (getInvincibleTime() >= 2.f)
+        {
+            this->setInvincible(false);
+            setInvincibleTime(0.f);
+        }
     }
 }

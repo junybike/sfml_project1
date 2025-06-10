@@ -2,17 +2,17 @@
 
 Enemy::Enemy(float x, float y)
 {
-    if (!texture.loadFromFile("assets/enemy1.jpeg"))
+    if (!texture.loadFromFile("assets/enemy1.png"))
     {
-        std::cerr << "Error: Failed to load enemy1.jpeg" << std::endl;
+        std::cerr << "Error: Failed to load enemy1.png" << std::endl;
     }
 
     sprite.setTexture(texture);
     sprite.setPosition(x, y);
-    sprite.setScale(0.1f, 0.1f);
+    sprite.setScale(1.f, 1.f);
 
-    frameWidth = 0;
-    frameHeight = 0;
+    frameWidth = 80;
+    frameHeight = 80;
 
     speed = 1.f;
     velocity = {0.f, 0.f};
@@ -20,9 +20,11 @@ Enemy::Enemy(float x, float y)
     onGround = false;
 }
 
-void Enemy::update(float deltaTime, const sf::Vector2f& playerPos) 
+void Enemy::update(float deltaTime, Entity& player) 
 {
     sf::Vector2 pos = sprite.getPosition();
+    sf::Vector2f playerPos = player.sprite.getPosition();
+
     float dx = playerPos.x - pos.x;
     float dy = playerPos.y - pos.y;
     float distance = std::sqrt(dx * dx + dy * dy);
@@ -38,22 +40,27 @@ void Enemy::update(float deltaTime, const sf::Vector2f& playerPos)
     {
         velocity.x = 0.f;
     }
-    
-    if (distance <= 20.f) 
+
+    if (player.getHitbox().intersects(this->getHitbox()))
     {
-        attacking = true;
-        std::cout << "ENEMY ATTACKING" << std::endl;
+        if (!player.isInvincible())
+        {
+            std::cout << "Collision" << std::endl;
+            player.setInvincible(true);
+        }    
     }
+
+    update(deltaTime);
 }
 
 void Enemy::update(float deltaTime)
 {
-    const float gravity = 20.f;
+    // Gravity
+    const float gravity = 1500.f;
     velocity.y += gravity * deltaTime;
-
     sprite.move(velocity * deltaTime);
 
-    float groundY = 600.f;
+    float groundY = 550.f;
     if (sprite.getPosition().y + sprite.getGlobalBounds().height >= groundY)
     {
         sprite.setPosition(sprite.getPosition().x, groundY - sprite.getGlobalBounds().height);
@@ -65,10 +72,4 @@ void Enemy::update(float deltaTime)
 bool Enemy::isAttacking() const
 {
     return attacking;
-}
-
-sf::FloatRect Enemy::getHitbox() const 
-{
-    sf::Vector2f pos = sprite.getPosition();
-    return sf::FloatRect(pos.x + 8.f, pos.y + 5.f, 36.f, 60.f);
 }

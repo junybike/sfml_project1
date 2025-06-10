@@ -3,21 +3,20 @@
 
 #include "entity.h"
 
-
 class Enemy : public Entity
 {
     public:
 
-        float speed;
-        bool attacking;
-
         Enemy(float x, float y);
 
-        void update(float deltaTime, const sf::Vector2f& playerPos);
+        void update(float deltaTime, Entity& player);
         void update(float deltaTime) override;
         bool isAttacking() const;
 
-        sf::FloatRect getHitbox() const override; 
+    private:
+
+        float speed;
+        bool attacking;
 };
 
 #endif

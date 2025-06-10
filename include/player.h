@@ -3,19 +3,19 @@
 
 #include "entity.h"
 
-
 class Player : public Entity
 {
     public:
-
-        float speed;
-        float jumpStrength;
 
         Player(float x, float y);
 
         void handleInput();
         void update(float deltaTime) override;
-};
 
+    private:
+
+        float speed;
+        float jumpStrength;
+};
 
 #endif

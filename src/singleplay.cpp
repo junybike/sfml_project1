@@ -20,10 +20,11 @@ void SinglePlay::play(sf::RenderWindow& window)
     Player player(100, 100);
 
     // Enemy
-    Enemy enemy(400.f, groundY - 64.f);
+    Enemy enemy(400.f, 100);
     
     // Hitbox
     sf::RectangleShape box1;
+    sf::RectangleShape box2;
 
     while (!quit)
     {
@@ -48,8 +49,11 @@ void SinglePlay::play(sf::RenderWindow& window)
 
         player.update(deltaTime);
         player.draw(window);
+        enemy.update(deltaTime, player);
+        enemy.draw(window);
 
         display_hitbox(box1, player, window);
+        display_hitbox(box2, enemy, window);
 
         window.display();
     }
