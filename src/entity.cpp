@@ -8,17 +8,18 @@ Entity::~Entity() {};
 void Entity::draw(sf::RenderWindow& window)
 {
     window.draw(sprite);
+
+    sf::Vector2f pos = sprite.getPosition();
+    healthBar.setPosition(pos.x, pos.y - 10.f);
+    float healthPercent = std::max(0.f, (float) health / maxHealth);
+    healthBar.setSize(sf::Vector2(50.f * healthPercent, 5.f));
+
+    window.draw(healthBar);
 }
 
 void Entity::update(float deltaTime, std::vector<Platform>& platforms)
 {
 
-}
-
-sf::FloatRect Entity::getHitbox() const 
-{
-    sf::Vector2f pos = sprite.getPosition();
-    return sf::FloatRect(pos.x, pos.y, frameWidth, frameHeight);
 }
 
 void Entity::applyGravity(float deltaTime, std::vector<Platform>& platforms)
@@ -45,6 +46,19 @@ void Entity::applyGravity(float deltaTime, std::vector<Platform>& platforms)
             }
         }
     }
+}
+
+sf::FloatRect Entity::getHitbox() const 
+{
+    sf::Vector2f pos = sprite.getPosition();
+    return sf::FloatRect(pos.x, pos.y, frameWidth, frameHeight);
+}
+
+void Entity::takeDamage(int dmg, sf::Vector2f knockback)
+{
+    health -= dmg;
+    if (health < 0) health = 0;
+    sprite.move(knockback);
 }
 
 // ============================================================================
@@ -102,4 +116,13 @@ float Entity::getInvincibleTime() const
 void Entity::setInvincibleTime(const float dt)
 {
     invincibleTime = dt;
+}
+
+bool Entity::isAlive() const
+{
+    return health > 0;
+}
+int Entity::getHealth() const
+{
+    return health;
 }

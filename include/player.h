@@ -9,13 +9,19 @@ class Player : public Entity
 
         Player(float x, float y);
 
-        void handleInput();
-        void update(float deltaTime, std::vector<Platform>& platforms) override;
+        void handleInput(std::vector<Entity*>& entities, sf::RenderWindow& window);
+        void update(float deltaTime, std::vector<Platform>& platforms, std::vector<Entity*>& entities, sf::RenderWindow& window);
+        void handleAttack(std::vector<Entity*>& entities, sf::RenderWindow& window);
 
     private:
 
+        bool facingRight;
+
         float speed;
         float jumpStrength;
+
+        sf::Clock cooldownClock;
+        float cooldown = 1.f;
 };
 
 #endif

@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <cmath>
+#include <algorithm>
 #include <unistd.h>
 #include <vector>
 
@@ -25,9 +26,7 @@ class Entity
         virtual sf::FloatRect getHitbox() const;        
         virtual void applyGravity(float deltaTime, std::vector<Platform>& platforms);
 
-        sf::Texture& getTexture() const;
-        void setTexture(const std::string file);
-        sf::Sprite* getSprite() const;
+        void takeDamage(int dmg, sf::Vector2f knockback);
 
         int getFrameWidth() const;
         void setFrameWidth(const int w);
@@ -43,6 +42,15 @@ class Entity
         void setInvincible(const bool option);
         float getInvincibleTime() const;
         void setInvincibleTime(const float dt);
+
+        bool isAlive() const;
+        int getHealth() const;
+
+    protected:
+
+        int maxHealth;
+        int health;
+        sf::RectangleShape healthBar;
     
     private:
 

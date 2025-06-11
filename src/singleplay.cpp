@@ -9,12 +9,6 @@ void SinglePlay::play(sf::RenderWindow& window)
 {
     sf::Clock clock;
     bool quit = false;
-    
-    // Ground
-    // float groundY = 550;
-    // sf::RectangleShape ground(sf::Vector2f(800, 50));
-    // ground.setFillColor(sf::Color(0, 0, 0)); 
-    // ground.setPosition(0, groundY);
 
     std::vector<Platform> platforms = 
     {
@@ -27,17 +21,21 @@ void SinglePlay::play(sf::RenderWindow& window)
     Player player(100, 100);
 
     // Enemy
-    Enemy enemy(400.f, 100);
+    Enemy* enemy = new Enemy(400.f, 100.f);
     
     // Hitbox
     sf::RectangleShape box1;
     sf::RectangleShape box2;
+
+    std::vector<Entity*> entities;
+    entities.push_back(enemy); 
 
     while (!quit)
     {
         float deltaTime = clock.restart().asSeconds();
         sf::Event event;   
 
+        // exiting game
         while (window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
@@ -58,16 +56,22 @@ void SinglePlay::play(sf::RenderWindow& window)
             p.draw(window);
         }
 
-        player.update(deltaTime, platforms);
+        player.update(deltaTime, platforms, entities, window);
         player.draw(window);
-        enemy.update(deltaTime, player, platforms);
-        enemy.draw(window);
+        enemy->update(deltaTime, player, platforms);
+        enemy->draw(window);
 
         display_hitbox(box1, player, window);
-        display_hitbox(box2, enemy, window);
+        display_hitbox(box2, *enemy, window);
 
         window.display();
     }
+    
+    for (auto& e : entities)
+    {
+        delete e;
+    }
+    entities.clear();
 }
 
 void display_hitbox(sf::RectangleShape& box, Entity& entity, sf::RenderWindow& window)

@@ -17,36 +17,44 @@ Enemy::Enemy(float x, float y)
     speed = 1.f;
     velocity = {0.f, 0.f};
     attacking = false;
+
+    maxHealth = 50;
+    health = 50;
+    healthBar.setSize(sf::Vector2f(50.f, 5.f));
+    healthBar.setFillColor(sf::Color::Red);
 }
 
 void Enemy::update(float deltaTime, Entity& player, std::vector<Platform>& platforms) 
 {
-    sf::Vector2 pos = sprite.getPosition();
-    sf::Vector2f playerPos = player.sprite.getPosition();
-
-    float dx = playerPos.x - pos.x;
-    float dy = playerPos.y - pos.y;
-    float distance = std::sqrt(dx * dx + dy * dy);
-
-    attacking = false;
-
-    if (distance > 20.f && distance < 400.f)
+    if (this->isAlive())
     {
-        sf::Vector2f direction = sf::Vector2(dx / distance, 0.f);
-        sprite.move(direction * speed);
-    }
-    else 
-    {
-        velocity.x = 0.f;
-    }
+        sf::Vector2 pos = sprite.getPosition();
+        sf::Vector2f playerPos = player.sprite.getPosition();
 
-    if (player.getHitbox().intersects(this->getHitbox()))
-    {
-        if (!player.isInvincible())
+        float dx = playerPos.x - pos.x;
+        float dy = playerPos.y - pos.y;
+        float distance = std::sqrt(dx * dx + dy * dy);
+
+        attacking = false;
+
+        if (distance > 20.f && distance < 400.f)
         {
-            std::cout << "Collision" << std::endl;
-            player.setInvincible(true);
-        }    
+            sf::Vector2f direction = sf::Vector2(dx / distance, 0.f);
+            sprite.move(direction * speed);
+        }
+        else 
+        {
+            velocity.x = 0.f;
+        }
+
+        if (player.getHitbox().intersects(this->getHitbox()))
+        {
+            if (!player.isInvincible())
+            {
+                std::cout << "Collision" << std::endl;
+                player.setInvincible(true);
+            }    
+        }
     }
 
     applyGravity(deltaTime, platforms);
