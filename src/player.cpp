@@ -15,6 +15,7 @@ Player::Player(float x, float y)
     this->setFrameHeight(sprite.getTexture()->getSize().y);
 
     facingRight = true;
+    canAttack = true;
 
     speed = 150.f;
     jumpStrength = 700.f;
@@ -49,7 +50,7 @@ void Player::handleInput(std::vector<Entity*>& entities, sf::RenderWindow& windo
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
     {
-        this->handleAttack(entities, window);
+        this->attackHit(entities, window);
     }
 }
 
@@ -68,11 +69,13 @@ void Player::update(float deltaTime, std::vector<Platform>& platforms, std::vect
             setInvincibleTime(0.f);
         }
     }
+    this->handleKb(deltaTime);
 }
 
-void Player::handleAttack(std::vector<Entity*>& entities, sf::RenderWindow& window)
+void Player::attackHit(std::vector<Entity*>& entities, sf::RenderWindow& window)
 {
-    if (cooldownClock.getElapsedTime().asSeconds() < cooldown) return;
+    if (!canAttack || cooldownClock.getElapsedTime().asSeconds() < 0.5f) return;
+    canAttack = false;
 
     cooldownClock.restart();
     sf::FloatRect attackZone;
@@ -88,8 +91,10 @@ void Player::handleAttack(std::vector<Entity*>& entities, sf::RenderWindow& wind
     {
         if (attackZone.intersects(e->getHitbox()))
         {
-            sf::Vector2f knockback = facingRight ? sf::Vector2f(20.f, 0.f) : sf::Vector2f(-20.f, 0.f);
-            e->takeDamage(20, knockback);
+            sf::Vector2f kbVelocity = facingRight ? sf::Vector2f(200.f, 0.f) : sf::Vector2f(-200.f, 0.f);
+            e->takeDamage(20, kbVelocity, 0.2f);
         }
     }
+
+    canAttack = true;
 }

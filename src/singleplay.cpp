@@ -18,7 +18,7 @@ void SinglePlay::play(sf::RenderWindow& window)
     };
 
     // Player
-    Player player(100, 100);
+    Player* player = new Player(100, 100);
 
     // Enemy
     Enemy* enemy = new Enemy(400.f, 100.f);
@@ -56,12 +56,12 @@ void SinglePlay::play(sf::RenderWindow& window)
             p.draw(window);
         }
 
-        player.update(deltaTime, platforms, entities, window);
-        player.draw(window);
-        enemy->update(deltaTime, player, platforms);
+        player->update(deltaTime, platforms, entities, window);
+        player->draw(window);
+        enemy->update(deltaTime, *player, platforms);
         enemy->draw(window);
 
-        display_hitbox(box1, player, window);
+        display_hitbox(box1, *player, window);
         display_hitbox(box2, *enemy, window);
 
         window.display();
@@ -72,6 +72,7 @@ void SinglePlay::play(sf::RenderWindow& window)
         delete e;
     }
     entities.clear();
+    delete player;
 }
 
 void display_hitbox(sf::RectangleShape& box, Entity& entity, sf::RenderWindow& window)

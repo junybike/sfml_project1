@@ -58,6 +58,7 @@ void Enemy::update(float deltaTime, Entity& player, std::vector<Platform>& platf
     }
 
     applyGravity(deltaTime, platforms);
+    handleKb(deltaTime);
 }
 
 bool Enemy::isAttacking() const

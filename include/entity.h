@@ -26,7 +26,8 @@ class Entity
         virtual sf::FloatRect getHitbox() const;        
         virtual void applyGravity(float deltaTime, std::vector<Platform>& platforms);
 
-        void takeDamage(int dmg, sf::Vector2f knockback);
+        void takeDamage(int dmg, sf::Vector2f kbV, float kbD);
+        void handleKb(float deltaTime);
 
         int getFrameWidth() const;
         void setFrameWidth(const int w);
@@ -46,6 +47,15 @@ class Entity
         bool isAlive() const;
         int getHealth() const;
 
+        bool isKb() const;
+        void setKb(const bool option);
+        float getKbTime() const;
+        void setKbTime(const float t);
+        float getKbDuration() const;
+        void setkbDuration(const float t);
+        sf::Vector2f getKbVelocity() const;
+        void setKbVelocity(const sf::Vector2f v);
+
     protected:
 
         int maxHealth;
@@ -62,6 +72,12 @@ class Entity
 
         bool invincible;
         float invincibleTime;
+
+        bool kb;
+        float kbTime;
+        float kbDuration;
+        sf::Vector2f kbVelocity;
+
 };
 
 #endif

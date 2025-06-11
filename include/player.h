@@ -11,7 +11,8 @@ class Player : public Entity
 
         void handleInput(std::vector<Entity*>& entities, sf::RenderWindow& window);
         void update(float deltaTime, std::vector<Platform>& platforms, std::vector<Entity*>& entities, sf::RenderWindow& window);
-        void handleAttack(std::vector<Entity*>& entities, sf::RenderWindow& window);
+        
+        void attackHit(std::vector<Entity*>& entities, sf::RenderWindow& window);
 
     private:
 
@@ -21,7 +22,7 @@ class Player : public Entity
         float jumpStrength;
 
         sf::Clock cooldownClock;
-        float cooldown = 1.f;
+        bool canAttack;
 };
 
 #endif

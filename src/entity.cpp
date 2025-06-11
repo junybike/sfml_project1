@@ -1,7 +1,7 @@
 #include "entity.h"
 
 Entity::Entity() : velocity(0.f, 0.f), onGround(false), moving(false), frameHeight(0), frameWidth(0), 
-                    invincible(false), invincibleTime(0.f) {}
+                    invincible(false), invincibleTime(0.f), kb(false), kbTime(0.f), kbDuration(0.f), kbVelocity(0.f,0.f) {}
 
 Entity::~Entity() {};
 
@@ -54,11 +54,33 @@ sf::FloatRect Entity::getHitbox() const
     return sf::FloatRect(pos.x, pos.y, frameWidth, frameHeight);
 }
 
-void Entity::takeDamage(int dmg, sf::Vector2f knockback)
+void Entity::takeDamage(int dmg, sf::Vector2f kbV, float kbD)
 {
     health -= dmg;
     if (health < 0) health = 0;
-    sprite.move(knockback);
+
+    kb = true;
+    kbTime = 0.f;
+    this->kbVelocity = kbV;
+    this->kbDuration = kbD;
+}
+
+void Entity::handleKb(float deltaTime)
+{
+    if (kb)
+    {
+        float t = kbTime / kbDuration;
+        if (t >= 1.f)
+        {
+            kb = false;
+            kbVelocity = {0.f, 0.f};
+        }
+        else
+        {
+            sprite.move(kbVelocity * deltaTime * (1.f - t));
+            kbTime += deltaTime;
+        }
+    }   
 }
 
 // ============================================================================
@@ -125,4 +147,37 @@ bool Entity::isAlive() const
 int Entity::getHealth() const
 {
     return health;
+}
+
+bool Entity::isKb() const
+{
+    return kb;
+}
+void Entity::setKb(const bool option)
+{
+    kb = option;
+}
+float Entity::getKbTime() const
+{
+    return kbTime;
+}
+void Entity::setKbTime(const float t)
+{
+    kbTime = t;
+}
+float Entity::getKbDuration() const
+{
+    return kbDuration;
+}
+void Entity::setkbDuration(const float t)
+{
+    kbDuration = t;
+}
+sf::Vector2f Entity::getKbVelocity() const
+{
+    return kbVelocity;
+}
+void Entity::setKbVelocity(const sf::Vector2f v)
+{
+    kbVelocity = v;
 }
