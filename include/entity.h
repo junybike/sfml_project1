@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "platform.h"
+#include "animation.h"
 
 class Entity 
 {
@@ -17,6 +18,8 @@ class Entity
         sf::Texture texture;
         sf::Sprite sprite;
         sf::Vector2f velocity;
+         
+        bool facingRight;
 
         Entity();
         virtual ~Entity();

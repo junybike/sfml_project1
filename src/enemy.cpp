@@ -34,10 +34,11 @@ void Enemy::update(float deltaTime, Entity& player, std::vector<Platform>& platf
         float dx = playerPos.x - pos.x;
         float dy = playerPos.y - pos.y;
         float distance = std::sqrt(dx * dx + dy * dy);
-
+        
+        facingRight = dx < 0 ? false : true;
         attacking = false;
 
-        if (distance > 20.f && distance < 400.f)
+        if (distance > 0.f && distance < 400.f)
         {
             sf::Vector2f direction = sf::Vector2(dx / distance, 0.f);
             sprite.move(direction * speed);
@@ -51,7 +52,8 @@ void Enemy::update(float deltaTime, Entity& player, std::vector<Platform>& platf
         {
             if (!player.isInvincible())
             {
-                std::cout << "Collision" << std::endl;
+                sf::Vector2f kbVelocity = facingRight ? sf::Vector2f(200.f, 0.f) : sf::Vector2f(-200.f, 0.f);
+                player.takeDamage(10, kbVelocity, 0.2f);
                 player.setInvincible(true);
             }    
         }
