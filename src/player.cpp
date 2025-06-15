@@ -21,7 +21,7 @@ Player::Player(float x, float y)
 
     runAnimation = Animation(&runTexture, 8, 0.15f, 122, 171);
     idleAnimation = Animation(&idleTexture, 8, 0.15f, 122, 171);
-    attackHitAnimation = Animation(&hitTexture, 4, 0.15f, 157, 171);
+    attackHitAnimation = Animation(&hitTexture, 4, 0.05f, 157, 171);
 
     sprite.setTexture(texture);
     sprite.setPosition(x, y);
@@ -45,7 +45,11 @@ Player::Player(float x, float y)
 void Player::handleInput(std::vector<Entity*>& entities, sf::RenderWindow& window) 
 {
     velocity.x = 0.f;
+    // std::cout << cooldownClock.getElapsedTime().asSeconds() << std::endl;
+    if (curState == AnimationState::AttackHit && cooldownClock.getElapsedTime().asSeconds() > 0.2f) canAttack = true;
 
+    if (!canAttack) return; 
+    
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) 
     {
         setAnimationState(AnimationState::Run);
@@ -67,12 +71,12 @@ void Player::handleInput(std::vector<Entity*>& entities, sf::RenderWindow& windo
         velocity.y = -jumpStrength;
         this->setOnGround(false);
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && canAttack)
     {
         this->attackHit(entities, window);
         setAnimationState(AnimationState::AttackHit);
     }
-    if (abs(velocity.x) < 1.0f && !sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+    if (abs(velocity.x) < 1.f && canAttack)
     {
         setAnimationState(AnimationState::Idle);
     }
@@ -95,10 +99,10 @@ void Player::update(float deltaTime, std::vector<Platform>& platforms, std::vect
         }
     }
     
-    if (curState == AnimationState::AttackHit && cooldownClock.getElapsedTime().asSeconds() > 0.5f)
-    {
-        setAnimationState(AnimationState::Idle);
-    }
+    // if (curState == AnimationState::AttackHit && cooldownClock.getElapsedTime().asSeconds() > 0.5f)
+    // {
+    //     setAnimationState(AnimationState::Idle);
+    // }
 
     switch(curState) 
     {
@@ -115,16 +119,6 @@ void Player::update(float deltaTime, std::vector<Platform>& platforms, std::vect
             break;
         
         case AnimationState::AttackHit:
-            
-            // if (cooldownClock.getElapsedTime().asSeconds() > 0.5f)
-            // {
-            //     setAnimationState(AnimationState::Idle);
-            // }
-            // else
-            // {
-            //     attackHitAnimation.update(deltaTime);
-            //     attackHitAnimation.applyToSprite(sprite);
-            // }
 
             attackHitAnimation.update(deltaTime);
             attackHitAnimation.applyToSprite(sprite);
@@ -136,19 +130,19 @@ void Player::update(float deltaTime, std::vector<Platform>& platforms, std::vect
 
 void Player::attackHit(std::vector<Entity*>& entities, sf::RenderWindow& window)
 {
-    if (!canAttack || cooldownClock.getElapsedTime().asSeconds() < 0.5f) return;
+    // if (!canAttack || cooldownClock.getElapsedTime().asSeconds() < 0.1f) return;
     // std::cout << "HIT" << std::endl;
     canAttack = false;
-
     cooldownClock.restart();
+    
     sf::FloatRect attackZone;
     sf::Vector2f pos = sprite.getPosition();
 
-    float attackWidth = 45.f;
+    float attackWidth = 50.f;
     float attackHeight = sprite.getGlobalBounds().height;
 
-    if (facingRight) attackZone = sf::FloatRect(pos.x + sprite.getGlobalBounds().width, pos.y, attackWidth, attackHeight);
-    else attackZone = sf::FloatRect(pos.x - attackWidth, pos.y, attackWidth, attackHeight);
+    if (facingRight) attackZone = sf::FloatRect(pos.x + 110, pos.y, attackWidth, attackHeight);
+    else attackZone = sf::FloatRect(pos.x - 50, pos.y, attackWidth, attackHeight);
     
     for (auto& e : entities)
     {
@@ -158,8 +152,6 @@ void Player::attackHit(std::vector<Entity*>& entities, sf::RenderWindow& window)
             e->takeDamage(20, kbVelocity, 0.2f);
         }
     }
-
-    canAttack = true;
 }
 
 void Player::setAnimationState(AnimationState state)
