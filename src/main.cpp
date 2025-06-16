@@ -14,8 +14,8 @@ enum class GameState
 
 int main() 
 {
-    // Set up game window
-    sf::RenderWindow window(sf::VideoMode(800, 600), "Stickman Game");
+    // Set up game window 800 600
+    sf::RenderWindow window(sf::VideoMode(1600, 900), "Stickman Game");
     window.setFramerateLimit(60);
 
     // Load font
@@ -27,15 +27,15 @@ int main()
 
     // Title screen
     sf::Text title("Stickman Game", font, 48);
-    title.setPosition(200.f, 100.f);
+    title.setPosition(625.f, 150.f);
     title.setFillColor(sf::Color::White);
 
     sf::Text singlePlayer("Singleplayer", font, 32);
-    singlePlayer.setPosition(220.f, 200.f);
+    singlePlayer.setPosition(650.f, 300.f);
     sf::Text multiplayer("Multiplayer", font, 32);
-    multiplayer.setPosition(220.f, 250.f);
+    multiplayer.setPosition(650.f, 350.f);
     sf::Text quit("Quit", font, 32);
-    quit.setPosition(220.f, 300.f);
+    quit.setPosition(650.f, 400.f);
 
     GameState state = GameState::LOBBY;
 
@@ -98,7 +98,9 @@ int main()
         {   
             SinglePlay session = SinglePlay();
             session.play(window);
+            
             state = GameState::LOBBY;
+            window.setView(window.getDefaultView());
         }
         else if (state == GameState::MULTI)
         {

@@ -14,12 +14,17 @@ class SinglePlay
 
         SinglePlay();
         void play(sf::RenderWindow& window);
+
+        void update_playerview(sf::RenderWindow& window, Player* player);
     
     private:
 
+        sf::View view;
         int uptime;
 };
 
 void display_hitbox(sf::RectangleShape& box1, Entity& entity, sf::RenderWindow& window);
+
+
 
 #endif

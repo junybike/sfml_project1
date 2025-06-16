@@ -2,6 +2,7 @@
 
 SinglePlay::SinglePlay()
 {
+    view.setSize(1600, 900);
     uptime = 0;
 }
 
@@ -27,13 +28,17 @@ void SinglePlay::play(sf::RenderWindow& window)
     sf::RectangleShape box1;
     sf::RectangleShape box2;
 
+    // Entity vector
     std::vector<Entity*> entities;
-    entities.push_back(enemy); 
+    entities.push_back(enemy);    
 
     while (!quit)
     {
+        sf::Event event;  
         float deltaTime = clock.restart().asSeconds();
-        sf::Event event;   
+         
+        // update player's screen view
+        update_playerview(window, player);
 
         // exiting game
         while (window.pollEvent(event))
@@ -75,6 +80,18 @@ void SinglePlay::play(sf::RenderWindow& window)
     delete player;
 }
 
+void SinglePlay::update_playerview(sf::RenderWindow& window, Player* player)
+{
+    sf::Vector2f center = player->sprite.getPosition();
+    float maxY = view.getSize().y / 2.f;
+    float minY = view.getSize().y / 2.f;
+
+    center.y = std::clamp(center.y, minY - 200, maxY + 200);
+    
+    view.setCenter(center);
+    window.setView(view);
+}
+
 void display_hitbox(sf::RectangleShape& box, Entity& entity, sf::RenderWindow& window)
 {
     box.setPosition(entity.getHitbox().left, entity.getHitbox().top);
@@ -84,3 +101,4 @@ void display_hitbox(sf::RectangleShape& box, Entity& entity, sf::RenderWindow& w
     box.setOutlineThickness(1.f);
     window.draw(box);
 }
+
