@@ -7,6 +7,7 @@
 #include "player.h"
 #include "enemy.h"
 #include "platform.h"
+#include "wall.h"
 
 class SinglePlay
 {

@@ -9,7 +9,7 @@ class Enemy : public Entity
 
         Enemy(float x, float y);
 
-        void update(float deltaTime, Entity& player, std::vector<Platform>& platforms);
+        void update(float deltaTime, Entity& player, std::vector<Structure*>& structures);
         bool isAttacking() const;
 
     private:

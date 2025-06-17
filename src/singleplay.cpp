@@ -11,11 +11,14 @@ void SinglePlay::play(sf::RenderWindow& window)
     sf::Clock clock;
     bool quit = false;
 
-    std::vector<Platform> platforms = 
+    std::vector<Structure*> structures = 
     {
-        Platform(0.f, 550.f, 800.f, 50.f),     // Ground
-        Platform(300.f, 400.f, 200.f, 20.f),   // Second floor
-        Platform(100.f, 300.f, 100.f, 20.f),   // Third floor
+        new Platform(0.f, 550.f, 800.f, 50.f),     // Ground
+        new Platform(300.f, 400.f, 200.f, 20.f),   // Second floor
+        new Platform(100.f, 300.f, 100.f, 20.f),   // Third floor
+
+        new Wall(300.f, 450.f, 40.f, 100.f),
+        new Wall(500.f, 300.f, 40.f, 200.f)
     };
 
     // Player
@@ -56,14 +59,14 @@ void SinglePlay::play(sf::RenderWindow& window)
 
         window.clear(sf::Color(30, 30, 30));
         
-        for (const auto& p : platforms)
+        for (const auto& s : structures)
         {
-            p.draw(window);
+            s->draw(window);
         }
 
-        player->update(deltaTime, platforms, entities, window);
+        player->update(deltaTime, structures, entities, window);
         player->draw(window);
-        enemy->update(deltaTime, *player, platforms);
+        enemy->update(deltaTime, *player, structures);
         enemy->draw(window);
 
         display_hitbox(box1, *player, window);
@@ -76,6 +79,11 @@ void SinglePlay::play(sf::RenderWindow& window)
     {
         delete e;
     }
+    for (auto& s : structures)
+    {
+        delete s;
+    }
+
     entities.clear();
     delete player;
 }

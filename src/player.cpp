@@ -82,11 +82,11 @@ void Player::handleInput(std::vector<Entity*>& entities, sf::RenderWindow& windo
     }
 }
 
-void Player::update(float deltaTime, std::vector<Platform>& platforms, std::vector<Entity*>& entities, sf::RenderWindow& window) 
+void Player::update(float deltaTime, std::vector<Structure*>& structures, std::vector<Entity*>& entities, sf::RenderWindow& window) 
 {
     handleInput(entities, window);
-    applyGravity(deltaTime, platforms);
     handleKb(deltaTime);
+    applyGravity(deltaTime, structures);
 
     // Temporary invincible after damage
     if (isInvincible())
@@ -99,11 +99,6 @@ void Player::update(float deltaTime, std::vector<Platform>& platforms, std::vect
         }
     }
     
-    // if (curState == AnimationState::AttackHit && cooldownClock.getElapsedTime().asSeconds() > 0.5f)
-    // {
-    //     setAnimationState(AnimationState::Idle);
-    // }
-
     switch(curState) 
     {
         case AnimationState::Idle:
@@ -125,7 +120,6 @@ void Player::update(float deltaTime, std::vector<Platform>& platforms, std::vect
             break;
     
     }
-    
 }
 
 void Player::attackHit(std::vector<Entity*>& entities, sf::RenderWindow& window)

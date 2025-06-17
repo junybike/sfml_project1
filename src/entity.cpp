@@ -22,30 +22,42 @@ void Entity::update(float deltaTime, std::vector<Platform>& platforms)
 
 }
 
-void Entity::applyGravity(float deltaTime, std::vector<Platform>& platforms)
+void Entity::applyGravity(float deltaTime, std::vector<Structure*>& structures)
 {
     const float gravity = 1700.f;
     velocity.y += gravity * deltaTime;
     sprite.move(velocity * deltaTime);
 
-    if (velocity.y > 0.f)
+    sf::FloatRect entityBounds = this->getHitbox();
+    sf::FloatRect eFeet(entityBounds.left, entityBounds.top + entityBounds.height - 5.f, entityBounds.width, 5.f);
+    
+    for (const auto& s : structures)
     {
-        sf::FloatRect entityBounds = this->getHitbox();
-        sf::FloatRect eFeet(entityBounds.left, entityBounds.top + entityBounds.height - 5.f, entityBounds.width, 5.f);
+        sf::FloatRect platformBounds = s->getBounds();
         
-        for (const auto& p : platforms)
+        if (eFeet.intersects(platformBounds) && velocity.y > 0.f && s->isPlatform())
         {
-            sf::FloatRect platformBounds = p.getBounds();
-            
-            if (eFeet.intersects(platformBounds))
-            {
-                sprite.setPosition(sprite.getPosition().x, platformBounds.top - entityBounds.height);
-                velocity.y = 0.f;
-                this->setOnGround(true);
-                break;
-            }
+            sprite.setPosition(sprite.getPosition().x, platformBounds.top - entityBounds.height);
+            velocity.y = 0.f;
+            this->setOnGround(true);
+            break;
+        }
+        if (entityBounds.intersects(s->getHitbox()) && s->isWall())
+        {
+            std::cout << " WALL " << std::endl;
+            break;
         }
     }
+}
+
+void Entity::standOnPlatform(Structure* platform)
+{
+    sf::FloatRect entityBounds = this->getHitbox();
+    sf::FloatRect platformBounds = platform->getBounds();
+
+    sprite.setPosition(sprite.getPosition().x, platformBounds.top - entityBounds.height);
+    velocity.y = 0.f;
+    this->setOnGround(true);
 }
 
 sf::FloatRect Entity::getHitbox() const 

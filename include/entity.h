@@ -27,7 +27,8 @@ class Entity
         virtual void update(float deltaTime, std::vector<Platform>& platforms);
         virtual void draw(sf::RenderWindow& window);
         virtual sf::FloatRect getHitbox() const;        
-        virtual void applyGravity(float deltaTime, std::vector<Platform>& platforms);
+        virtual void applyGravity(float deltaTime, std::vector<Structure*>& platforms);
+        virtual void standOnPlatform(Structure* platform);
 
         void takeDamage(int dmg, sf::Vector2f kbV, float kbD);
         void handleKb(float deltaTime);

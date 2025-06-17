@@ -24,7 +24,7 @@ Enemy::Enemy(float x, float y)
     healthBar.setFillColor(sf::Color::Red);
 }
 
-void Enemy::update(float deltaTime, Entity& player, std::vector<Platform>& platforms) 
+void Enemy::update(float deltaTime, Entity& player, std::vector<Structure*>& structures) 
 {
     if (this->isAlive())
     {
@@ -59,7 +59,7 @@ void Enemy::update(float deltaTime, Entity& player, std::vector<Platform>& platf
         }
     }
 
-    applyGravity(deltaTime, platforms);
+    applyGravity(deltaTime, structures);
     handleKb(deltaTime);
 }
 

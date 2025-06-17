@@ -17,7 +17,7 @@ class Player : public Entity
         Player(float x, float y);
 
         void handleInput(std::vector<Entity*>& entities, sf::RenderWindow& window);
-        void update(float deltaTime, std::vector<Platform>& platforms, std::vector<Entity*>& entities, sf::RenderWindow& window);
+        void update(float deltaTime, std::vector<Structure*>& structures, std::vector<Entity*>& entities, sf::RenderWindow& window);
         void setAnimationState(AnimationState state);
 
         void attackHit(std::vector<Entity*>& entities, sf::RenderWindow& window);
