@@ -18,7 +18,7 @@ void SinglePlay::play(sf::RenderWindow& window)
         new Platform(100.f, 300.f, 100.f, 20.f),   // Third floor
 
         new Wall(300.f, 450.f, 40.f, 100.f),
-        new Wall(500.f, 300.f, 40.f, 200.f)
+        new Wall(500.f, 200.f, 40.f, 200.f)
     };
 
     // Player

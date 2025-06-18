@@ -31,7 +31,8 @@ class Entity
         virtual void standOnPlatform(Structure* platform);
 
         void takeDamage(int dmg, sf::Vector2f kbV, float kbD);
-        void handleKb(float deltaTime);
+        void handleKb(float deltaTime, std::vector<Structure*>& structures);
+        bool tryMove(sf::Vector2f movement, const std::vector<Structure*>& structures);
 
         int getFrameWidth() const;
         void setFrameWidth(const int w);

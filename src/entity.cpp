@@ -26,11 +26,16 @@ void Entity::applyGravity(float deltaTime, std::vector<Structure*>& structures)
 {
     const float gravity = 1700.f;
     velocity.y += gravity * deltaTime;
-    sprite.move(velocity * deltaTime);
 
-    sf::FloatRect entityBounds = this->getHitbox();
+    sf::Vector2f horizontalMove(velocity.x * deltaTime, 0.f);
+    tryMove(horizontalMove, structures);
+
+    sf::Vector2f verticalMove(0.f, velocity.y * deltaTime);
+    sprite.move(verticalMove);
+
+    sf::FloatRect entityBounds = getHitbox();
     sf::FloatRect eFeet(entityBounds.left, entityBounds.top + entityBounds.height - 5.f, entityBounds.width, 5.f);
-    
+
     for (const auto& s : structures)
     {
         sf::FloatRect platformBounds = s->getBounds();
@@ -39,12 +44,7 @@ void Entity::applyGravity(float deltaTime, std::vector<Structure*>& structures)
         {
             sprite.setPosition(sprite.getPosition().x, platformBounds.top - entityBounds.height);
             velocity.y = 0.f;
-            this->setOnGround(true);
-            break;
-        }
-        if (entityBounds.intersects(s->getHitbox()) && s->isWall())
-        {
-            std::cout << " WALL " << std::endl;
+            setOnGround(true);
             break;
         }
     }
@@ -77,7 +77,7 @@ void Entity::takeDamage(int dmg, sf::Vector2f kbV, float kbD)
     this->kbDuration = kbD;
 }
 
-void Entity::handleKb(float deltaTime)
+void Entity::handleKb(float deltaTime, std::vector<Structure*>& structures)
 {
     if (kb)
     {
@@ -89,10 +89,26 @@ void Entity::handleKb(float deltaTime)
         }
         else
         {
-            sprite.move(kbVelocity * deltaTime * (1.f - t));
+            sf::Vector2f movement = kbVelocity * deltaTime * (1.f - t);             
+            tryMove(movement, structures);
+
             kbTime += deltaTime;
         }
     }   
+}
+
+bool Entity::tryMove(sf::Vector2f movement, const std::vector<Structure*>& structures)
+{
+    sprite.move(movement);
+    for (const auto& s : structures)
+    {
+        if (s->isWall() && getHitbox().intersects(s->getHitbox()))
+        {
+            sprite.move(-movement);
+            return false;
+        }
+    }
+    return true;
 }
 
 // ============================================================================

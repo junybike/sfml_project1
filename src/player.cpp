@@ -85,7 +85,7 @@ void Player::handleInput(std::vector<Entity*>& entities, sf::RenderWindow& windo
 void Player::update(float deltaTime, std::vector<Structure*>& structures, std::vector<Entity*>& entities, sf::RenderWindow& window) 
 {
     handleInput(entities, window);
-    handleKb(deltaTime);
+    handleKb(deltaTime, structures);
     applyGravity(deltaTime, structures);
 
     // Temporary invincible after damage

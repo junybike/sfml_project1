@@ -26,8 +26,11 @@ Enemy::Enemy(float x, float y)
 
 void Enemy::update(float deltaTime, Entity& player, std::vector<Structure*>& structures) 
 {
+    applyGravity(deltaTime, structures);
+    handleKb(deltaTime, structures);
+    
     if (this->isAlive())
-    {
+    {        
         sf::Vector2 pos = sprite.getPosition();
         sf::Vector2f playerPos = player.sprite.getPosition();
 
@@ -41,7 +44,8 @@ void Enemy::update(float deltaTime, Entity& player, std::vector<Structure*>& str
         if (distance > 0.f && distance < 400.f)
         {
             sf::Vector2f direction = sf::Vector2(dx / distance, 0.f);
-            sprite.move(direction * speed);
+            sf::Vector2f movement = direction * speed;
+            tryMove(movement, structures);
         }
         else 
         {
@@ -58,9 +62,6 @@ void Enemy::update(float deltaTime, Entity& player, std::vector<Structure*>& str
             }    
         }
     }
-
-    applyGravity(deltaTime, structures);
-    handleKb(deltaTime);
 }
 
 bool Enemy::isAttacking() const
