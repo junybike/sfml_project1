@@ -2,26 +2,16 @@
 
 Player::Player(float x, float y) 
 {
-    if (!texture.loadFromFile("assets/stickman/stickman.png"))
-    {
-        std::cerr << "Error: Failed to load stickman.png" << std::endl;
-    }
-    if (!runTexture.loadFromFile("assets/stickman/stickman_run.png"))
-    {
-        std::cerr << "Error: Failed to load stickman_run.png" << std::endl;
-    }
-    if (!idleTexture.loadFromFile("assets/stickman/stickman_idle.png"))
-    {
-        std::cerr << "Error: Failed to load stickman_idle.png" << std::endl;
-    }
-    if (!hitTexture.loadFromFile("assets/stickman/stickman_hit.png"))
-    {
-        std::cerr << "Error: Failed to load stickman_hit.png" << std::endl;
-    }
+    if (!texture.loadFromFile("assets/stickman/stickman.png")) std::cerr << "Error: Failed to load stickman.png" << std::endl;
+    if (!runTexture.loadFromFile("assets/stickman/stickman_run.png")) std::cerr << "Error: Failed to load stickman_run.png" << std::endl;
+    if (!idleTexture.loadFromFile("assets/stickman/stickman_idle.png")) std::cerr << "Error: Failed to load stickman_idle.png" << std::endl;
+    if (!hitTexture.loadFromFile("assets/stickman/stickman_hit.png")) std::cerr << "Error: Failed to load stickman_hit.png" << std::endl;
+    if (!kickTexture.loadFromFile("assets/stickman/stickman_idle.png")) std::cerr << "Error: Failed to load stickman_idle.png" << std::endl;
 
     runAnimation = Animation(&runTexture, 8, 0.15f, 122, 171);
     idleAnimation = Animation(&idleTexture, 8, 0.15f, 122, 171);
     attackHitAnimation = Animation(&hitTexture, 4, 0.05f, 157, 171);
+    attackKickAnimation = Animation(&idleTexture, 8, 0.15f, 122, 171);
 
     sprite.setTexture(texture);
     sprite.setPosition(x, y);
@@ -44,10 +34,18 @@ Player::Player(float x, float y)
 
 void Player::handleInput(std::vector<Entity*>& entities, sf::RenderWindow& window) 
 {
-    velocity.x = 0.f;
-    // std::cout << cooldownClock.getElapsedTime().asSeconds() << std::endl;
-    if (curState == AnimationState::AttackHit && cooldownClock.getElapsedTime().asSeconds() > 0.2f) canAttack = true;
+    if (curState == AnimationState::AttackKick)
+    {
+        if (isOnGround() || sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+        {
+            canAttack = true;
+            velocity.x = 0;
+        }
+        else if (!canAttack) attackKick(entities, window);
+    }
+    else velocity.x = 0.f;
 
+    if (curState == AnimationState::AttackHit && cooldownClock.getElapsedTime().asSeconds() > 0.2f) canAttack = true;
     if (!canAttack) return; 
     
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) 
@@ -66,15 +64,21 @@ void Player::handleInput(std::vector<Entity*>& entities, sf::RenderWindow& windo
         sprite.setOrigin(0, 0);
         facingRight = true;
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && this->isOnGround()) 
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && isOnGround()) 
     {
         velocity.y = -jumpStrength;
-        this->setOnGround(false);
+        setOnGround(false);
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && canAttack)
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && canAttack && isOnGround())
     {
-        this->attackHit(entities, window);
+        attackHit(entities, window);
         setAnimationState(AnimationState::AttackHit);
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && canAttack && !isOnGround())
+    {
+        //std::cout << "KICK" << std::endl;
+        attackKick(entities, window);
+        setAnimationState(AnimationState::AttackKick);
     }
     if (abs(velocity.x) < 1.f && canAttack)
     {
@@ -144,6 +148,27 @@ void Player::attackHit(std::vector<Entity*>& entities, sf::RenderWindow& window)
         {
             sf::Vector2f kbVelocity = facingRight ? sf::Vector2f(200.f, 0.f) : sf::Vector2f(-200.f, 0.f);
             e->takeDamage(20, kbVelocity, 0.2f);
+        }
+    }
+}
+
+void Player::attackKick(std::vector<Entity*>& entities, sf::RenderWindow& window)
+{
+    if (canAttack)
+    {
+        canAttack = false;
+        velocity.x = facingRight ? 500.f : -500.f;
+    }
+    
+    for (auto& e : entities)
+    {
+        if (this->getHitbox().intersects(e->getHitbox()) && !e->isInvincible())
+        {
+            std::cout << "D" << std::endl;
+            sf::Vector2f kbVelocity = facingRight ? sf::Vector2f(200.f, 0.f) : sf::Vector2f(-200.f, 0.f);
+            e->takeDamage(30, kbVelocity, 0.2f);
+            e->setInvincible(true);
+            canAttack = true;
         }
     }
 }

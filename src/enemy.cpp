@@ -52,7 +52,7 @@ void Enemy::update(float deltaTime, Entity& player, std::vector<Structure*>& str
             velocity.x = 0.f;
         }
 
-        if (player.getHitbox().intersects(this->getHitbox()))
+        if (player.getHitbox().intersects(this->getHitbox()) && !isInvincible())
         {
             if (!player.isInvincible())
             {
@@ -61,7 +61,19 @@ void Enemy::update(float deltaTime, Entity& player, std::vector<Structure*>& str
                 player.setInvincible(true);
             }    
         }
+
+        // Temporary invincible after damage
+        if (isInvincible())
+        {
+            setInvincibleTime(deltaTime + getInvincibleTime());
+            if (getInvincibleTime() >= 2.f)
+            {
+                setInvincible(false);
+                setInvincibleTime(0.f);
+            }
+        }
     }
+    else setInvincible(false);
 }
 
 bool Enemy::isAttacking() const
