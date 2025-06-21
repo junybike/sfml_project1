@@ -36,7 +36,7 @@ void Player::handleInput(std::vector<Entity*>& entities, sf::RenderWindow& windo
 {
     if (curState == AnimationState::AttackKick)
     {
-        if (isOnGround() || sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+        if (isOnGround())
         {
             canAttack = true;
             velocity.x = 0;
