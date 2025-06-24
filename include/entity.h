@@ -49,6 +49,9 @@ class Entity
         float getInvincibleTime() const;
         void setInvincibleTime(const float dt);
 
+        bool isGuarding() const;
+        void setGuarding(const bool option);
+
         bool isAlive() const;
         int getHealth() const;
 
@@ -77,6 +80,8 @@ class Entity
 
         bool invincible;
         float invincibleTime;
+
+        bool guarding;
 
         bool kb;
         float kbTime;

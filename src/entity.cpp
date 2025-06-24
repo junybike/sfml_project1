@@ -1,7 +1,7 @@
 #include "entity.h"
 
 Entity::Entity() : velocity(0.f, 0.f), onGround(false), moving(false), frameHeight(0), frameWidth(0), 
-                    invincible(false), invincibleTime(0.f), kb(false), kbTime(0.f), kbDuration(0.f), kbVelocity(0.f,0.f) {}
+                    invincible(false), invincibleTime(0.f), guarding(false), kb(false), kbTime(0.f), kbDuration(0.f), kbVelocity(0.f,0.f) {}
 
 Entity::~Entity() {};
 
@@ -166,6 +166,15 @@ float Entity::getInvincibleTime() const
 void Entity::setInvincibleTime(const float dt)
 {
     invincibleTime = dt;
+}
+
+bool Entity::isGuarding() const
+{
+    return guarding;
+}
+void Entity::setGuarding(const bool option)
+{
+    guarding = option;
 }
 
 bool Entity::isAlive() const

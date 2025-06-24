@@ -38,6 +38,7 @@ void Player::handleInput(std::vector<Entity*>& entities, sf::RenderWindow& windo
 {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && canAttack)
     {
+        guardShield();
         setAnimationState(AnimationState::guardShield);
         velocity.x = 0;
         return;
@@ -78,12 +79,12 @@ void Player::handleInput(std::vector<Entity*>& entities, sf::RenderWindow& windo
         velocity.y = -jumpStrength;
         setOnGround(false);
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && canAttack && isOnGround())
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && canAttack && isOnGround() && !isInvincible())
     {
         attackHit(entities, window);
         setAnimationState(AnimationState::AttackHit);
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && canAttack && !isOnGround())
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && canAttack && !isOnGround() && !isInvincible())
     {
         attackKick(entities, window);
         setAnimationState(AnimationState::AttackKick);
@@ -192,9 +193,9 @@ void Player::attackKick(std::vector<Entity*>& entities, sf::RenderWindow& window
     }
 }
 
-void Player::guardShield(sf::RenderWindow& window)
+void Player::guardShield()
 {
-
+    setGuarding(true);
 }
 
 void Player::setAnimationState(AnimationState state)

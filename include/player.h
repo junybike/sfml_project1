@@ -24,7 +24,7 @@ class Player : public Entity
 
         void attackHit(std::vector<Entity*>& entities, sf::RenderWindow& window);
         void attackKick(std::vector<Entity*>& entities, sf::RenderWindow& window);
-        void guardShield(sf::RenderWindow& window);
+        void guardShield();
 
     private:
 

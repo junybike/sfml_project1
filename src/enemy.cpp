@@ -57,7 +57,9 @@ void Enemy::update(float deltaTime, Entity& player, std::vector<Structure*>& str
             if (!player.isInvincible())
             {
                 sf::Vector2f kbVelocity = facingRight ? sf::Vector2f(200.f, 0.f) : sf::Vector2f(-200.f, 0.f);
-                player.takeDamage(10, kbVelocity, 0.2f);
+                int damage = player.isGuarding() ? 0 : 10;
+                
+                player.takeDamage(damage, kbVelocity, 0.2f);
                 player.setInvincible(true);
             }    
         }
