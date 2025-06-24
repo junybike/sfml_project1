@@ -10,7 +10,8 @@ class Player : public Entity
         Idle,
         Run,
         AttackHit,
-        AttackKick
+        AttackKick,
+        guardShield
     };
 
     public:
@@ -23,6 +24,7 @@ class Player : public Entity
 
         void attackHit(std::vector<Entity*>& entities, sf::RenderWindow& window);
         void attackKick(std::vector<Entity*>& entities, sf::RenderWindow& window);
+        void guardShield(sf::RenderWindow& window);
 
     private:
 
@@ -37,11 +39,13 @@ class Player : public Entity
         Animation runAnimation;
         Animation attackHitAnimation;
         Animation attackKickAnimation;
+        Animation guardShieldAnimation;
 
         sf::Texture runTexture;
         sf::Texture idleTexture;
         sf::Texture hitTexture;
         sf::Texture kickTexture;
+        sf::Texture shieldTexture;
 };
 
 #endif

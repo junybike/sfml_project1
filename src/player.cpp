@@ -6,12 +6,14 @@ Player::Player(float x, float y)
     if (!runTexture.loadFromFile("assets/stickman/stickman_run.png")) std::cerr << "Error: Failed to load stickman_run.png" << std::endl;
     if (!idleTexture.loadFromFile("assets/stickman/stickman_idle.png")) std::cerr << "Error: Failed to load stickman_idle.png" << std::endl;
     if (!hitTexture.loadFromFile("assets/stickman/stickman_hit.png")) std::cerr << "Error: Failed to load stickman_hit.png" << std::endl;
-    if (!kickTexture.loadFromFile("assets/stickman/stickman_idle.png")) std::cerr << "Error: Failed to load stickman_idle.png" << std::endl;
+    if (!kickTexture.loadFromFile("assets/stickman/stickman_kick.png")) std::cerr << "Error: Failed to load stickman_kick.png" << std::endl;
+    if (!shieldTexture.loadFromFile("assets/stickman/stickman_shield.png")) std::cerr << "Error: Failed to load stickman_shield.png" << std::endl;
 
     runAnimation = Animation(&runTexture, 8, 0.15f, 122, 171);
     idleAnimation = Animation(&idleTexture, 8, 0.15f, 122, 171);
     attackHitAnimation = Animation(&hitTexture, 4, 0.05f, 157, 171);
-    attackKickAnimation = Animation(&idleTexture, 8, 0.15f, 122, 171);
+    attackKickAnimation = Animation(&kickTexture, 2, 0.15f, 122, 171);
+    guardShieldAnimation = Animation(&shieldTexture, 2, 0.15f, 122, 171);
 
     sprite.setTexture(texture);
     sprite.setPosition(x, y);
@@ -34,6 +36,13 @@ Player::Player(float x, float y)
 
 void Player::handleInput(std::vector<Entity*>& entities, sf::RenderWindow& window) 
 {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && canAttack)
+    {
+        setAnimationState(AnimationState::guardShield);
+        velocity.x = 0;
+        return;
+    }
+
     if (curState == AnimationState::AttackKick)
     {
         if (isOnGround())
@@ -76,7 +85,6 @@ void Player::handleInput(std::vector<Entity*>& entities, sf::RenderWindow& windo
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && canAttack && !isOnGround())
     {
-        //std::cout << "KICK" << std::endl;
         attackKick(entities, window);
         setAnimationState(AnimationState::AttackKick);
     }
@@ -122,7 +130,18 @@ void Player::update(float deltaTime, std::vector<Structure*>& structures, std::v
             attackHitAnimation.update(deltaTime);
             attackHitAnimation.applyToSprite(sprite);
             break;
-    
+        
+        case AnimationState::AttackKick:
+
+            attackKickAnimation.update(deltaTime);
+            attackKickAnimation.applyToSprite(sprite);
+            break;
+        
+        case AnimationState::guardShield:
+
+            guardShieldAnimation.update(deltaTime);
+            guardShieldAnimation.applyToSprite(sprite);
+            break;
     }
 }
 
@@ -171,6 +190,11 @@ void Player::attackKick(std::vector<Entity*>& entities, sf::RenderWindow& window
             canAttack = true;
         }
     }
+}
+
+void Player::guardShield(sf::RenderWindow& window)
+{
+
 }
 
 void Player::setAnimationState(AnimationState state)
