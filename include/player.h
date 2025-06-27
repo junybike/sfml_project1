@@ -9,6 +9,7 @@ class Player : public Entity
     {
         Idle,
         Run,
+        Slide,
         AttackHit,
         AttackKick,
         guardShield
@@ -22,6 +23,7 @@ class Player : public Entity
         void update(float deltaTime, std::vector<Structure*>& structures, std::vector<Entity*>& entities, sf::RenderWindow& window);
         void setAnimationState(AnimationState state);
 
+        void slide();
         void attackHit(std::vector<Entity*>& entities, sf::RenderWindow& window);
         void attackKick(std::vector<Entity*>& entities, sf::RenderWindow& window);
         void guardShield();
@@ -37,12 +39,14 @@ class Player : public Entity
         AnimationState curState;
         Animation idleAnimation;
         Animation runAnimation;
+        Animation slideAnimation;
         Animation attackHitAnimation;
         Animation attackKickAnimation;
         Animation guardShieldAnimation;
 
         sf::Texture runTexture;
         sf::Texture idleTexture;
+        sf::Texture slideTexture;
         sf::Texture hitTexture;
         sf::Texture kickTexture;
         sf::Texture shieldTexture;

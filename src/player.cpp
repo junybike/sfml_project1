@@ -8,12 +8,14 @@ Player::Player(float x, float y)
     if (!hitTexture.loadFromFile("assets/stickman/stickman_hit.png")) std::cerr << "Error: Failed to load stickman_hit.png" << std::endl;
     if (!kickTexture.loadFromFile("assets/stickman/stickman_kick.png")) std::cerr << "Error: Failed to load stickman_kick.png" << std::endl;
     if (!shieldTexture.loadFromFile("assets/stickman/stickman_shield.png")) std::cerr << "Error: Failed to load stickman_shield.png" << std::endl;
+    if (!slideTexture.loadFromFile("assets/stickman/stickman_slide.png")) std::cerr << "Error: Failed to load stickman_slide.png" << std::endl;
 
     runAnimation = Animation(&runTexture, 8, 0.15f, 122, 171);
     idleAnimation = Animation(&idleTexture, 8, 0.15f, 122, 171);
     attackHitAnimation = Animation(&hitTexture, 4, 0.05f, 157, 171);
     attackKickAnimation = Animation(&kickTexture, 2, 0.15f, 122, 171);
     guardShieldAnimation = Animation(&shieldTexture, 2, 0.15f, 122, 171);
+    slideAnimation = Animation(&slideTexture, 8, 0.0625f, 142, 171);
 
     sprite.setTexture(texture);
     sprite.setPosition(x, y);
@@ -43,8 +45,7 @@ void Player::handleInput(std::vector<Entity*>& entities, sf::RenderWindow& windo
         velocity.x = 0;
         return;
     }
-
-    if (curState == AnimationState::AttackKick)
+    else if (curState == AnimationState::AttackKick)
     {
         if (isOnGround())
         {
@@ -53,11 +54,23 @@ void Player::handleInput(std::vector<Entity*>& entities, sf::RenderWindow& windo
         }
         else if (!canAttack) attackKick(entities, window);
     }
+    else if (curState == AnimationState::Slide)
+    {
+        if (cooldownClock.getElapsedTime().asSeconds() > 0.5f) 
+        {
+            canAttack = true;
+            velocity.x = 0.f;
+            setInvincible(false);
+        }
+        else slide();
+    } 
     else velocity.x = 0.f;
 
-    if (curState == AnimationState::AttackHit && cooldownClock.getElapsedTime().asSeconds() > 0.2f) canAttack = true;
-    if (!canAttack) return; 
     
+    if (curState == AnimationState::AttackHit && cooldownClock.getElapsedTime().asSeconds() > 0.2f) canAttack = true;
+    
+    if (!canAttack) return; 
+
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) 
     {
         setAnimationState(AnimationState::Run);
@@ -65,6 +78,12 @@ void Player::handleInput(std::vector<Entity*>& entities, sf::RenderWindow& windo
         sprite.setScale(-1.f, 1.f);
         sprite.setOrigin(106, 0);
         facingRight = false;
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && isOnGround())
+        {
+            setAnimationState(AnimationState::Slide);
+            slide();
+        }
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) 
     {
@@ -73,6 +92,12 @@ void Player::handleInput(std::vector<Entity*>& entities, sf::RenderWindow& windo
         sprite.setScale(1.f, 1.f);
         sprite.setOrigin(0, 0);
         facingRight = true;
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && isOnGround())
+        {
+            setAnimationState(AnimationState::Slide);
+            slide();
+        }
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && isOnGround()) 
     {
@@ -125,7 +150,13 @@ void Player::update(float deltaTime, std::vector<Structure*>& structures, std::v
             runAnimation.update(deltaTime);
             runAnimation.applyToSprite(sprite);
             break;
-        
+
+        case AnimationState::Slide:
+
+            slideAnimation.update(deltaTime);
+            slideAnimation.applyToSprite(sprite);
+            break;
+
         case AnimationState::AttackHit:
 
             attackHitAnimation.update(deltaTime);
@@ -196,6 +227,14 @@ void Player::attackKick(std::vector<Entity*>& entities, sf::RenderWindow& window
 void Player::guardShield()
 {
     setGuarding(true);
+}
+
+void Player::slide()
+{
+    if (canAttack) cooldownClock.restart();
+    canAttack = false;
+    velocity.x = facingRight ? 700.f : -700.f;
+    setInvincible(true);
 }
 
 void Player::setAnimationState(AnimationState state)
