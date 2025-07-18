@@ -45,7 +45,7 @@ class Entity
         void setMoving(const bool option);
 
         bool isInvincible() const;
-        void setInvincible(const bool option);
+        void setInvincible(const bool option, int damage);
         float getInvincibleTime() const;
         void setInvincibleTime(const float dt);
 

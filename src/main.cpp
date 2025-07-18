@@ -3,6 +3,9 @@
 #include "player.h"
 #include "enemy.h"
 #include "singleplay.h"
+#include "multiplayermenu.h"
+#include "multiplayerhost.h"
+#include "multiplayerclient.h"
 
 enum class GameState 
 {
@@ -104,7 +107,24 @@ int main()
         }
         else if (state == GameState::MULTI)
         {
+            MultiplayerMenu menu;
+            MultiplayerOption choice = menu.show(window);
+
+            if (choice == MultiplayerOption::MAKE_ROOM)
+            {
+                MultiplayerHost host;
+                host.runLobby(window);
+            }
+            else if (choice == MultiplayerOption::FIND_ROOM)
+            {
+                MultiplayerClient client;
+                std::string ip = client.askForIp(window);
+                client.connectToServer(ip);
+                client.waitForHostToStart(window);
+            }
+
             state = GameState::LOBBY;
+            window.setView(window.getDefaultView());
         }
         window.display();
     }

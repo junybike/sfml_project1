@@ -60,7 +60,7 @@ void Enemy::update(float deltaTime, Entity& player, std::vector<Structure*>& str
                 int damage = player.isGuarding() ? 0 : 10;
                 
                 player.takeDamage(damage, kbVelocity, 0.2f);
-                player.setInvincible(true);
+                player.setInvincible(true, damage);
             }    
         }
 
@@ -70,12 +70,12 @@ void Enemy::update(float deltaTime, Entity& player, std::vector<Structure*>& str
             setInvincibleTime(deltaTime + getInvincibleTime());
             if (getInvincibleTime() >= 2.f)
             {
-                setInvincible(false);
+                setInvincible(false, 0);
                 setInvincibleTime(0.f);
             }
         }
     }
-    else setInvincible(false);
+    else setInvincible(false, 0);
 }
 
 bool Enemy::isAttacking() const

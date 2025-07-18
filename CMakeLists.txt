@@ -14,7 +14,7 @@ find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
 add_executable(game ${SOURCES})
 
 # Link SFML
-target_link_libraries(game sfml-graphics sfml-window sfml-system)
+target_link_libraries(game sfml-graphics sfml-window sfml-system sfml-network)
 
 # Copy assets to the build directory
 file(COPY assets/ DESTINATION ${CMAKE_BINARY_DIR}/assets)

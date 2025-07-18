@@ -153,10 +153,10 @@ bool Entity::isInvincible() const
 {
     return invincible;
 }
-void Entity::setInvincible(const bool option)
+void Entity::setInvincible(const bool option, int damage)
 {
     invincible = option;
-    if (option) sprite.setColor(sf::Color(255, 255, 255, 128));
+    if (option && damage) sprite.setColor(sf::Color(255, 255, 255, 128));
     else sprite.setColor(sf::Color::White);
 }
 float Entity::getInvincibleTime() const

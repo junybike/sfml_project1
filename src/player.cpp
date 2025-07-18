@@ -60,7 +60,7 @@ void Player::handleInput(std::vector<Entity*>& entities, sf::RenderWindow& windo
         {
             canAttack = true;
             velocity.x = 0.f;
-            setInvincible(false);
+            setInvincible(false, 0);
         }
         else slide();
     } 
@@ -132,7 +132,7 @@ void Player::update(float deltaTime, std::vector<Structure*>& structures, std::v
         setInvincibleTime(deltaTime + getInvincibleTime());
         if (getInvincibleTime() >= 2.f)
         {
-            setInvincible(false);
+            setInvincible(false, 0);
             setInvincibleTime(0.f);
         }
     }
@@ -218,7 +218,7 @@ void Player::attackKick(std::vector<Entity*>& entities, sf::RenderWindow& window
             std::cout << "D" << std::endl;
             sf::Vector2f kbVelocity = facingRight ? sf::Vector2f(200.f, 0.f) : sf::Vector2f(-200.f, 0.f);
             e->takeDamage(30, kbVelocity, 0.2f);
-            e->setInvincible(true);
+            e->setInvincible(true, 30);
             canAttack = true;
         }
     }
@@ -234,7 +234,7 @@ void Player::slide()
     if (canAttack) cooldownClock.restart();
     canAttack = false;
     velocity.x = facingRight ? 700.f : -700.f;
-    setInvincible(true);
+    setInvincible(true, 0);
 }
 
 void Player::setAnimationState(AnimationState state)
