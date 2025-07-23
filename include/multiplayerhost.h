@@ -17,6 +17,8 @@ private:
     sf::TcpListener listener;
     std::vector<sf::TcpSocket*> clients;
     unsigned short port = 54000;
+
+    std::vector<std::string> playerList; 
 };
 
 #endif

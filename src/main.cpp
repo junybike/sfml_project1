@@ -118,9 +118,10 @@ int main()
             else if (choice == MultiplayerOption::FIND_ROOM)
             {
                 MultiplayerClient client;
-                std::string ip = client.askForIp(window);
-                client.connectToServer(ip);
-                client.waitForHostToStart(window);
+                auto [ip, name] = client.askForIp(window);
+                client.setName(name);
+
+                if (client.connectToServer(ip)) client.waitForHostToStart(window);
             }
 
             state = GameState::LOBBY;

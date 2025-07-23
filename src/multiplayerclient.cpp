@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
-std::string MultiplayerClient::askForIp(sf::RenderWindow& window) 
+std::pair<std::string, std::string> MultiplayerClient::askForIp(sf::RenderWindow& window) 
 {
     sf::Font font; 
     if (!font.loadFromFile("assets/ARIAL.TTF"))
@@ -10,14 +10,24 @@ std::string MultiplayerClient::askForIp(sf::RenderWindow& window)
         std::cerr << "Failed to load font!" << std::endl;
     }
 
-    std::string ipInput;
-    sf::Text prompt("Enter server IP", font, 24);
-    prompt.setPosition(100.f, 100.f);
+    std::string ipInput, nameInput;
+    bool enteringIP = true;
+    bool done = false;
 
-    sf::Text inputText("", font, 24);
-    inputText.setPosition(100.f, 150.f);
+    sf::Text promptIP("Enter server IP", font, 24);
+    promptIP.setPosition(100.f, 100.f); 
+    sf::Text IPText("", font, 24);
+    IPText.setPosition(100.f, 150.f);
 
-    while (window.isOpen())
+    sf::Text promptName("Enter Username", font, 24);
+    promptName.setPosition(100.f, 200.f); 
+    sf::Text nameText("", font, 24);
+    nameText.setPosition(100.f, 230.f);
+
+    sf::Text instruction("Press TAB to switch field, ENTER to confirm", font, 16);
+    instruction.setPosition(100.f, 300.f);
+
+    while (!done && window.isOpen())
     {
         sf::Event event;
         while (window.pollEvent(event))
@@ -25,41 +35,65 @@ std::string MultiplayerClient::askForIp(sf::RenderWindow& window)
             if (event.type == sf::Event::Closed)
             {
                 window.close();
-                return "";
+                done = true;
             }
-            if (event.type == sf::Event::TextEntered)
+            else if (event.type == sf::Event::TextEntered)
             {
-                if (event.text.unicode == '\b')
+                if (enteringIP)
                 {
-                    if (!ipInput.empty()) ipInput.pop_back();
+                    if (event.text.unicode == '\b' && !ipInput.empty()) ipInput.pop_back();
+                    else if (event.text.unicode < 128 && std::isprint(event.text.unicode)) ipInput += static_cast<char>(event.text.unicode);
                 }
-                else if (event.text.unicode == '\r' || event.text.unicode == '\n')
+                else
                 {
-                    return ipInput;
+                    if (event.text.unicode == '\b' && !nameInput.empty()) nameInput.pop_back();
+                    else if (event.text.unicode < 128 && std::isprint(event.text.unicode)) nameInput += static_cast<char>(event.text.unicode);
                 }
-                else if (event.text.unicode < 128) 
-                {
-                    ipInput += static_cast<char>(event.text.unicode);
-                }
+            }
+            else if (event.type == sf::Event::KeyPressed)
+            {
+                if (event.key.code == sf::Keyboard::Tab) enteringIP = !enteringIP;
+                else if (event.key.code == sf::Keyboard::Enter) done = true;
             }
         }
 
-        inputText.setString(ipInput);
+        IPText.setString(ipInput);
+        nameText.setString(nameInput);
+
+        // Highlight the active field
+        IPText.setFillColor(enteringIP ? sf::Color::Yellow : sf::Color::White);
+        nameText.setFillColor(!enteringIP ? sf::Color::Yellow : sf::Color::White);
 
         window.clear(sf::Color(50, 50, 50));
-        window.draw(prompt);
-        window.draw(inputText);
+        window.draw(promptIP);
+        window.draw(IPText);
+        window.draw(promptName);
+        window.draw(nameText);
+        window.draw(instruction);
         window.display();
     }
 
-    return "";
+    return {ipInput, nameInput};
 }
 
-void MultiplayerClient::connectToServer(const std::string& ip) 
+bool MultiplayerClient::connectToServer(const std::string& ip) 
 {
+    std::cout << " Connecting " << std::endl;
     if (socket.connect(ip, port) != sf::Socket::Done) {
-        // Handle connection error
+        std::cerr << "Failed to connect!" << std::endl;
     }
+    
+    sf::Packet namePacket;
+    namePacket << std::string("NAME") << playerName;
+
+    if (socket.send(namePacket) != sf::Socket::Done)
+    {
+        std::cerr << "Failed to send name!" << std::endl;
+        return false;
+    }
+    
+    socket.setBlocking(false);
+    return true;
 }
 
 void MultiplayerClient::waitForHostToStart(sf::RenderWindow& window) 
@@ -70,9 +104,41 @@ void MultiplayerClient::waitForHostToStart(sf::RenderWindow& window)
         std::cerr << "Failed to load font!" << std::endl;
     }
 
-    bool waiting = true;
-    while (waiting) 
+    sf::RectangleShape leaveButton(sf::Vector2f(150.f, 40.f));
+    leaveButton.setPosition(300.f, 400.f);
+    leaveButton.setFillColor(sf::Color(200,100,100));
+
+    sf::Text leaveText("Leave Lobby", font, 20);
+    leaveText.setPosition(310.f, 410.f);
+
+    bool inLobby = true;
+    while (inLobby && window.isOpen()) 
     {
+        sf::Event event;
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+            {
+                sf::Packet packet;
+                packet << std::string("LEAVE");
+                socket.send(packet);
+                window.close();
+                inLobby = false;
+            }
+            if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) 
+            {
+                sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+                if (leaveButton.getGlobalBounds().contains((float)mousePos.x, (float)mousePos.y)) 
+                {
+                    std::cout << "CLICKED" << std::endl;
+                    sf::Packet packet;
+                    packet << std::string("LEAVE");
+                    socket.send(packet);
+                    inLobby = false;
+                }
+            }
+        }
+
         sf::Packet packet;
         if (socket.receive(packet) == sf::Socket::Done) 
         {
@@ -80,26 +146,52 @@ void MultiplayerClient::waitForHostToStart(sf::RenderWindow& window)
             packet >> msg;
             if (msg == "START") 
             {
-                waiting = false;
+                inLobby = false;
             }
-        }
-
-        sf::Event event;
-        while (window.pollEvent(event)) 
-        {
-            if (event.type == sf::Event::Closed) 
+            else if (msg == "PLAYERS")
             {
-                window.close();
-                waiting = false;
+                sf::Uint32 cnt;
+                packet >> cnt;
+                playerList.clear();
+
+                for (sf::Uint32 i = 0; i < cnt; i++)
+                {
+                    std::string name;
+                    packet >> name;
+                    playerList.push_back(name);
+                }
+            }
+            else if (msg == "NAME_TAKEN")
+            {
+                std::cerr << "Name already taken! Please restart and choose another." << std::endl;
+                inLobby = false;
             }
         }
 
         window.clear(sf::Color(50, 50, 50));
+        window.draw(leaveButton);
+        window.draw(leaveText);
 
-        sf::Text waitingText("Waiting for host to start...", font, 24);
-        waitingText.setPosition(100.f, 100.f);
-        window.draw(waitingText);
+        sf::Text inLobbyText("inLobby for host to start...", font, 24);
+        inLobbyText.setPosition(100.f, 100.f);
+        window.draw(inLobbyText);
+
+        for (size_t i = 0; i < playerList.size(); i++)
+        {
+            sf::Text playerText(playerList[i], font, 20);
+            playerText.setPosition(120.f, 150.f + i * 30.f);
+            window.draw(playerText);
+        }
 
         window.display();
     }
+}
+
+std::string MultiplayerClient::getName() const
+{
+    return playerName;
+}
+void MultiplayerClient::setName(const std::string name)
+{
+    playerName = name;
 }

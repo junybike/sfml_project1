@@ -39,11 +39,96 @@ void MultiplayerHost::runLobby(sf::RenderWindow& window)
                 {
                     clients.push_back(client);
                     selector.add(*client);
-                    std::cout << "New player joined! Total: " << clients.size() << std::endl;
                 }
                 else 
                 {
                     delete client;
+                }
+            }
+            else
+            {
+                for (size_t i = 0; i < clients.size(); i++)
+                {
+                    auto& c = clients[i];
+                    if (selector.isReady(*c))
+                    {
+                        sf::Packet packet;
+                        if (c->receive(packet) == sf::Socket::Done)
+                        {
+                            std::string msg;
+                            packet >> msg;
+
+                            if (msg == "LEAVE")
+                            {
+                                selector.remove(*c);
+                                delete c;
+                                
+                                clients.erase(clients.begin() + i);
+                                playerList.erase(playerList.begin() + i);
+                                i--;
+
+                                sf::Packet listPacket;
+                                listPacket << std::string("PLAYERS") << static_cast<sf::Uint32>(playerList.size());
+
+                                for (const auto& name : playerList) listPacket << name;
+                                for (const auto& other : clients) other->send(listPacket);
+                                continue;
+                            }
+                            else if (msg == "NAME")
+                            {
+                                std:: string name;
+                                packet >> name;
+                                bool duplicate = false;
+
+                                for (const auto& n : playerList)
+                                {
+                                    if (n == name)
+                                    {
+                                        duplicate = true;
+                                        break;
+                                    }
+                                }
+                                if (duplicate)
+                                {
+                                    sf::Packet reject;
+                                    reject << std::string("NAME_TAKEN");
+                                    c->send(reject);
+                                }
+                                else
+                                {
+                                    playerList.push_back(name);
+                                    std::cout << name << " joined! Total: " << playerList.size() << std::endl;
+
+                                    sf::Packet listPacket;
+                                    listPacket << std::string("PLAYERS") << static_cast<sf::Uint32>(playerList.size());
+                                    for (const auto& n : playerList)
+                                    {
+                                        listPacket << n;
+                                    }
+                                    for (const auto& c : clients)
+                                    {
+                                        c->send(listPacket);
+                                    }
+                                }
+                            }
+                        }
+                        else 
+                        {
+                            selector.remove(*c);
+                            delete c;
+
+                            clients.erase(clients.begin() + i);
+                            playerList.erase(playerList.begin() + i);
+                            --i;
+
+                            sf::Packet listPacket;
+                            listPacket << std::string("PLAYERS") << static_cast<sf::Uint32>(playerList.size());
+
+                            for (const auto& name : playerList) listPacket << name;                        
+                            for (const auto& other : clients) other->send(listPacket);
+                            continue;
+                        }
+                    }
                 }
             }
         }
@@ -91,9 +176,9 @@ void MultiplayerHost::runLobby(sf::RenderWindow& window)
         title.setPosition(100.f, 50.f);
         window.draw(title);
 
-        for (size_t i = 0; i < clients.size(); ++i) 
+        for (size_t i = 0; i < playerList.size(); ++i) 
         {
-            sf::Text playerText("Player " + std::to_string(i+1), font, 20);
+            sf::Text playerText(playerList[i], font, 20);
             playerText.setPosition(120.f, 100.f + i * 30.f);
             window.draw(playerText);
         }
@@ -104,9 +189,9 @@ void MultiplayerHost::runLobby(sf::RenderWindow& window)
         window.display();
     }
 
-    // Optional: clean up clients when done
-    // for (auto c : clients) { delete c; }
-    // clients.clear();
+    // Clean up clients when done
+    for (auto c : clients) { delete c; }
+    clients.clear();
 }
 
 
