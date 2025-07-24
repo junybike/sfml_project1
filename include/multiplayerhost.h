@@ -2,6 +2,7 @@
 #define MULTIPLAYERHOST_H
 
 #include "popup.h"
+#include "playerstate.h"
 
 #include <SFML/Network.hpp>
 #include <SFML/Graphics.hpp>
@@ -13,6 +14,7 @@ class MultiplayerHost
 public:
     void runLobby(sf::RenderWindow& window);
     void startGame();
+    void runGameLoop(sf::RenderWindow& window);
 
 private:
     

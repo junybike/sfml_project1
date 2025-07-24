@@ -213,7 +213,6 @@ void MultiplayerHost::runLobby(sf::RenderWindow& window)
     listener.close();
 }
 
-
 void MultiplayerHost::startGame()   // Send "start" message to all clients
 {
     for (auto& client : clients) 
@@ -221,5 +220,51 @@ void MultiplayerHost::startGame()   // Send "start" message to all clients
         sf::Packet packet;
         packet << "START";
         client->send(packet);
+    }
+}
+
+void MultiplayerHost::runGameLoop(sf::RenderWindow& window)
+{
+    sf::Clock clock;
+    bool running = true;
+    std::map<std::string, PlayerState> playerStates;
+
+    while (running && window.isOpen())
+    {
+        float deltaTime = clock.restart().asSeconds();
+
+        for (auto& c : clients)
+        {
+            sf::Packet packet;
+            if (c->receive(packet) == sf::Socket::Done)
+            {
+                std::string msg;
+                packet >> msg;
+
+                if (msg == "STATE")
+                {
+                    std::string name;
+                    PlayerState ps;
+                    packet >> name >> ps;
+                    playerStates[name] = ps;
+                }
+                else if (msg == "LEAVE")
+                {
+                    // remove this client
+                }
+            }
+        }
+
+        // playerStates[hostName] = getHostState();
+
+        sf::Packet out;
+        out << std::string("ALL_STATE") << static_cast<sf::Uint32>(playerStates.size());
+        for (const auto& [name, state] : playerStates) out << name << state;
+        for (auto& c : clients) c->send(out);
+
+        window.clear(sf::Color::Black);
+        // for (const auto& [name, state] : playerStates) drawPlayer(window, state);
+
+        window.display();
     }
 }

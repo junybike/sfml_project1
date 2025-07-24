@@ -28,6 +28,9 @@ class Player : public Entity
         void attackKick(std::vector<Entity*>& entities, sf::RenderWindow& window);
         void guardShield();
 
+        bool getCanAttack();
+        void setCanAttack(const bool option);
+
     private:
 
         float speed;

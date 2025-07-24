@@ -17,16 +17,16 @@ enum class GameState
 
 int main() 
 {
-    // Set up game window 800 600
+    // UI
+    // --------------------------------------------------------------------------------------------------------
+
+    // Game window
     sf::RenderWindow window(sf::VideoMode(1600, 900), "Stickman Game");
     window.setFramerateLimit(60);
 
     // Load font
     sf::Font font;
-    if (!font.loadFromFile("assets/ARIAL.TTF"))
-    {
-        std::cerr << "Failed to load ARIAL.TTF" << std::endl;
-    }
+    if (!font.loadFromFile("assets/ARIAL.TTF")) std::cerr << "Failed to load ARIAL.TTF" << std::endl;
 
     // Title screen
     sf::Text title("Stickman Game", font, 48);
@@ -40,8 +40,12 @@ int main()
     sf::Text quit("Quit", font, 32);
     quit.setPosition(650.f, 400.f);
 
-    GameState state = GameState::LOBBY;
+    // --------------------------------------------------------------------------------------------------------
 
+    // Gamestate
+    // --------------------------------------------------------------------------------------------------------
+
+    GameState state = GameState::LOBBY;
     while (window.isOpen()) 
     {        
         sf::Event event;
@@ -129,6 +133,7 @@ int main()
         }
         window.display();
     }
+    // --------------------------------------------------------------------------------------------------------
 
     return 0;
 }

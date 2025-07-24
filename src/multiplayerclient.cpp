@@ -198,6 +198,67 @@ void MultiplayerClient::waitForHostToStart(sf::RenderWindow& window)
     }
 }
 
+void MultiplayerClient::gameLoop(sf::RenderWindow& window)
+{
+    sf::Clock clock;
+    bool playing = true;
+    std::map<std::string, PlayerState> playerStates;
+
+    std::vector<Entity*> entities;
+    player = new Player(100, 100);
+
+    std::vector<Structure*> structures = 
+    {
+        new Platform(0.f, 550.f, 800.f, 50.f),     // Ground
+        new Platform(300.f, 400.f, 200.f, 20.f),   // Second floor
+        new Platform(100.f, 300.f, 100.f, 20.f),   // Third floor
+
+        new Wall(300.f, 450.f, 40.f, 100.f),
+        new Wall(500.f, 200.f, 40.f, 200.f)
+    };
+
+    while (playing && window.isOpen())
+    {
+        float dt = clock.restart().asSeconds();
+        PlayerState myState = getPlayerState(player, "Name");
+
+        sf::Packet packet;
+        packet << std::string("STATE") << playerName << myState;
+        socket.send(packet);
+
+        sf::Packet recv;
+        if (socket.receive(recv) == sf::Socket::Done)
+        {
+            std::string msg;
+            recv >> msg;
+
+            if (msg == "ALL_STATE")
+            {
+                sf::Uint32 cnt;
+                recv >> cnt;
+
+                playerStates.clear();
+                for (sf::Uint32 i = 0; i < cnt; i++)
+                {
+                    std::string name;
+                    PlayerState ps;
+                    recv >> name >> ps;
+
+                    if (name != playerName) playerStates[name] = ps;
+                }
+            }
+        }
+
+        player->handleInput(entities, window);
+        player->update(dt, structures, entities, window);
+        window.clear(sf::Color::Black);
+        drawPlayer(window, myState);
+
+        for(const auto& [name, ps] : playerStates) drawPlayer(window, ps);
+        window.display();
+    }
+}
+
 std::string MultiplayerClient::getName() const
 {
     return playerName;

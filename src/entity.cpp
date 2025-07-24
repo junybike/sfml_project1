@@ -185,6 +185,10 @@ int Entity::getHealth() const
 {
     return health;
 }
+void Entity::setHealth(const int hp)
+{
+    health = hp;
+}
 
 bool Entity::isKb() const
 {

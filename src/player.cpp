@@ -249,3 +249,13 @@ void Player::setAnimationState(AnimationState state)
         case AnimationState::AttackHit: attackHitAnimation.reset(); cooldownClock.restart(); break;
     }
 }
+
+bool Player::getCanAttack()
+{
+    return canAttack;
+}
+
+void Player::setCanAttack(const bool option)
+{
+    canAttack = option;
+}

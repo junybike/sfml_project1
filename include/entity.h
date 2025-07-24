@@ -10,6 +10,7 @@
 
 #include "platform.h"
 #include "animation.h"
+#include "wall.h"
 
 class Entity 
 {
@@ -54,6 +55,7 @@ class Entity
 
         bool isAlive() const;
         int getHealth() const;
+        void setHealth(const int hp);
 
         bool isKb() const;
         void setKb(const bool option);
