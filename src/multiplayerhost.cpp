@@ -27,12 +27,20 @@ void MultiplayerHost::runLobby(sf::RenderWindow& window)
     sf::Text startText("Start Game", font, 24);
     startText.setPosition(320.f, 410.f);
 
+    // "Cancel" button
+    sf::RectangleShape cancelButton(sf::Vector2f(200.f, 50.f));
+    cancelButton.setPosition(520.f, 400.f);
+    cancelButton.setFillColor(sf::Color(200, 100, 100));
+
+    sf::Text cancelText("Cancel", font, 24);
+    cancelText.setPosition(540.f, 410.f);
+
     bool running = true;
     while (running && window.isOpen()) 
     {
-        if (selector.wait(sf::milliseconds(100))) 
+        if (selector.wait(sf::milliseconds(1000))) 
         {
-            if (selector.isReady(listener)) 
+            if (selector.isReady(listener)) // player joining
             {
                 sf::TcpSocket* client = new sf::TcpSocket;
                 if (listener.accept(*client) == sf::Socket::Done) 
@@ -45,7 +53,7 @@ void MultiplayerHost::runLobby(sf::RenderWindow& window)
                     delete client;
                 }
             }
-            else
+            else    // handle players
             {
                 for (size_t i = 0; i < clients.size(); i++)
                 {
@@ -58,7 +66,7 @@ void MultiplayerHost::runLobby(sf::RenderWindow& window)
                             std::string msg;
                             packet >> msg;
 
-                            if (msg == "LEAVE")
+                            if (msg == "LEAVE") // a player has left the lobby
                             {
                                 selector.remove(*c);
                                 delete c;
@@ -71,10 +79,10 @@ void MultiplayerHost::runLobby(sf::RenderWindow& window)
                                 listPacket << std::string("PLAYERS") << static_cast<sf::Uint32>(playerList.size());
 
                                 for (const auto& name : playerList) listPacket << name;
-                                for (const auto& other : clients) other->send(listPacket);
+                                for (const auto& client : clients) client->send(listPacket);
                                 continue;
                             }
-                            else if (msg == "NAME")
+                            else if (msg == "NAME") // a player joined and receives its name
                             {
                                 std:: string name;
                                 packet >> name;
@@ -93,6 +101,11 @@ void MultiplayerHost::runLobby(sf::RenderWindow& window)
                                     sf::Packet reject;
                                     reject << std::string("NAME_TAKEN");
                                     c->send(reject);
+
+                                    selector.remove(*c);
+                                    delete c;
+                                    clients.erase(clients.begin() + i);
+                                    i--;
                                 }
                                 else
                                 {
@@ -101,18 +114,13 @@ void MultiplayerHost::runLobby(sf::RenderWindow& window)
 
                                     sf::Packet listPacket;
                                     listPacket << std::string("PLAYERS") << static_cast<sf::Uint32>(playerList.size());
-                                    for (const auto& n : playerList)
-                                    {
-                                        listPacket << n;
-                                    }
-                                    for (const auto& c : clients)
-                                    {
-                                        c->send(listPacket);
-                                    }
+                                    
+                                    for (const auto& n : playerList) listPacket << n;
+                                    for (const auto& c : clients) c->send(listPacket);
                                 }
                             }
                         }
-                        else 
+                        else // a player disconnected unexpectedly
                         {
                             selector.remove(*c);
                             delete c;
@@ -152,8 +160,6 @@ void MultiplayerHost::runLobby(sf::RenderWindow& window)
                 if (startButton.getGlobalBounds().contains((float)mousePos.x, (float)mousePos.y)) 
                 {
                     std::cout << "Starting game!" << std::endl;
-
-                    // Send "START" message to all connected clients
                     sf::Packet packet;
                     packet << std::string("START");
                     for (auto& c : clients) 
@@ -163,7 +169,17 @@ void MultiplayerHost::runLobby(sf::RenderWindow& window)
                             std::cerr << "Failed to send START to a client." << std::endl;
                         }
                     }
-
+                    running = false;
+                }
+                if (cancelButton.getGlobalBounds().contains((float)mousePos.x, (float)mousePos.y))
+                {
+                    std::cout << "Cancelling lobby" << std::endl;
+                    sf::Packet packet;
+                    packet << std::string("CANCEL");
+                    for (auto& c : clients)
+                    {
+                        c->send(packet);
+                    }
                     running = false;
                 }
             }
@@ -185,6 +201,8 @@ void MultiplayerHost::runLobby(sf::RenderWindow& window)
 
         window.draw(startButton);
         window.draw(startText);
+        window.draw(cancelButton);
+        window.draw(cancelText);
 
         window.display();
     }
@@ -192,6 +210,7 @@ void MultiplayerHost::runLobby(sf::RenderWindow& window)
     // Clean up clients when done
     for (auto c : clients) { delete c; }
     clients.clear();
+    listener.close();
 }
 
 

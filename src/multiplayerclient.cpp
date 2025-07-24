@@ -98,6 +98,10 @@ bool MultiplayerClient::connectToServer(const std::string& ip)
 
 void MultiplayerClient::waitForHostToStart(sf::RenderWindow& window) 
 {
+    Popup popup;
+    float deltaTime = popup.getClock().restart().asSeconds();
+    popup.update(deltaTime);
+
     sf::Font font;
     if (!font.loadFromFile("assets/ARIAL.TTF")) 
     {
@@ -163,7 +167,13 @@ void MultiplayerClient::waitForHostToStart(sf::RenderWindow& window)
             }
             else if (msg == "NAME_TAKEN")
             {
-                std::cerr << "Name already taken! Please restart and choose another." << std::endl;
+                std::cout << "Name already taken!" << std::endl;
+                // popup.show("Name already taken!", 3.f);
+                inLobby = false;
+            }
+            else if (msg == "CANCEL")
+            {
+                std::cout << "Host canceled lobby. Returning to main menu" << std::endl;
                 inLobby = false;
             }
         }
@@ -171,8 +181,9 @@ void MultiplayerClient::waitForHostToStart(sf::RenderWindow& window)
         window.clear(sf::Color(50, 50, 50));
         window.draw(leaveButton);
         window.draw(leaveText);
+        popup.draw(window);
 
-        sf::Text inLobbyText("inLobby for host to start...", font, 24);
+        sf::Text inLobbyText("Waiting for host to start...", font, 24);
         inLobbyText.setPosition(100.f, 100.f);
         window.draw(inLobbyText);
 

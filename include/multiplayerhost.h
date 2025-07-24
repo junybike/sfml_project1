@@ -1,6 +1,8 @@
 #ifndef MULTIPLAYERHOST_H
 #define MULTIPLAYERHOST_H
 
+#include "popup.h"
+
 #include <SFML/Network.hpp>
 #include <SFML/Graphics.hpp>
 #include <vector>

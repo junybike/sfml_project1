@@ -1,6 +1,8 @@
 #ifndef MULTIPLAYERCLIENT_H
 #define MULTIPLAYERCLIENT_H
 
+#include "popup.h"
+
 #include <SFML/Network.hpp>
 #include <SFML/Graphics.hpp>
 #include <string>
