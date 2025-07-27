@@ -13,7 +13,6 @@ class MultiplayerHost
 {
 public:
     void runLobby(sf::RenderWindow& window);
-    void startGame();
     void runGameLoop(sf::RenderWindow& window);
 
 private:
@@ -22,6 +21,7 @@ private:
     std::vector<sf::TcpSocket*> clients;
     unsigned short port = 54000;
 
+    Player* player = nullptr;
     std::vector<std::string> playerList; 
 };
 

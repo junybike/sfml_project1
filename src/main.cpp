@@ -125,7 +125,11 @@ int main()
                 auto [ip, name] = client.askForIp(window);
                 client.setName(name);
 
-                if (client.connectToServer(ip)) client.waitForHostToStart(window);
+                if (client.connectToServer(ip)) 
+                {
+                    client.waitForHostToStart(window);
+                    client.gameLoop(window);
+                }
             }
 
             state = GameState::LOBBY;

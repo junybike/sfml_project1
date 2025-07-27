@@ -169,6 +169,7 @@ void MultiplayerHost::runLobby(sf::RenderWindow& window)
                             std::cerr << "Failed to send START to a client." << std::endl;
                         }
                     }
+                    runGameLoop(window);
                     running = false;
                 }
                 if (cancelButton.getGlobalBounds().contains((float)mousePos.x, (float)mousePos.y))
@@ -213,26 +214,44 @@ void MultiplayerHost::runLobby(sf::RenderWindow& window)
     listener.close();
 }
 
-void MultiplayerHost::startGame()   // Send "start" message to all clients
-{
-    for (auto& client : clients) 
-    {
-        sf::Packet packet;
-        packet << "START";
-        client->send(packet);
-    }
-}
-
 void MultiplayerHost::runGameLoop(sf::RenderWindow& window)
 {
     sf::Clock clock;
     bool running = true;
     std::map<std::string, PlayerState> playerStates;
 
+    std::vector<Entity*> entities;
+    player = new Player(100, 100);
+    PlayerState myState = getPlayerState(player, "host");
+
+    std::vector<Structure*> structures = 
+    {
+        new Platform(0.f, 550.f, 800.f, 50.f),     // Ground
+        new Platform(300.f, 400.f, 200.f, 20.f),   // Second floor
+        new Platform(100.f, 300.f, 100.f, 20.f),   // Third floor
+
+        new Wall(300.f, 450.f, 40.f, 100.f),
+        new Wall(500.f, 200.f, 40.f, 200.f)
+    };
+
+    sf::SocketSelector selector;
+    for (auto& c : clients)
+    {
+        c->setBlocking(false);
+        selector.add(*c);
+    }
+
     while (running && window.isOpen())
     {
-        float deltaTime = clock.restart().asSeconds();
+        sf::Event event;
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed) window.close();
+            else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) running = false;
+        }
 
+        float dt = clock.restart().asSeconds();
+        
         for (auto& c : clients)
         {
             sf::Packet packet;
@@ -255,16 +274,31 @@ void MultiplayerHost::runGameLoop(sf::RenderWindow& window)
             }
         }
 
-        // playerStates[hostName] = getHostState();
-
         sf::Packet out;
         out << std::string("ALL_STATE") << static_cast<sf::Uint32>(playerStates.size());
         for (const auto& [name, state] : playerStates) out << name << state;
         for (auto& c : clients) c->send(out);
 
+        // playerStates[hostName] = getHostState();
         window.clear(sf::Color::Black);
-        // for (const auto& [name, state] : playerStates) drawPlayer(window, state);
+
+        if (window.hasFocus()) player->handleInput(entities, window);
+        player->update(dt, structures, entities, window);
+        player->draw(window);
+
+        for (const auto& s : structures) s->draw(window);
+        for (const auto& [name, state] : playerStates) 
+        {
+            if (name != "host") drawPlayer(window, state);
+        }
 
         window.display();
+        sf::sleep(sf::milliseconds(5));
+
+        applyPlayerState(player, myState);
     }
+
+    for (auto& c : clients) delete c;
+    clients.clear();
+    playerStates.clear();
 }

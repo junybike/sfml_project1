@@ -73,6 +73,7 @@ std::pair<std::string, std::string> MultiplayerClient::askForIp(sf::RenderWindow
         window.display();
     }
 
+    playerName = nameInput;
     return {ipInput, nameInput};
 }
 
@@ -201,11 +202,12 @@ void MultiplayerClient::waitForHostToStart(sf::RenderWindow& window)
 void MultiplayerClient::gameLoop(sf::RenderWindow& window)
 {
     sf::Clock clock;
-    bool playing = true;
+    bool running = true;
     std::map<std::string, PlayerState> playerStates;
 
     std::vector<Entity*> entities;
     player = new Player(100, 100);
+    PlayerState myState = getPlayerState(player, playerName);
 
     std::vector<Structure*> structures = 
     {
@@ -217,14 +219,26 @@ void MultiplayerClient::gameLoop(sf::RenderWindow& window)
         new Wall(500.f, 200.f, 40.f, 200.f)
     };
 
-    while (playing && window.isOpen())
+    socket.setBlocking(false);
+    while (running && window.isOpen())
     {
+        sf::Event event;
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed) window.close();
+            else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) running = false;
+        }
+
         float dt = clock.restart().asSeconds();
-        PlayerState myState = getPlayerState(player, "Name");
 
         sf::Packet packet;
         packet << std::string("STATE") << playerName << myState;
-        socket.send(packet);
+        if (socket.send(packet) != sf::Socket::Done) 
+        {
+            std::cerr << "gameLoop: Send failed. Disconnecting.\n";
+            running = false;
+            break;
+        }
 
         sf::Packet recv;
         if (socket.receive(recv) == sf::Socket::Done)
@@ -248,14 +262,29 @@ void MultiplayerClient::gameLoop(sf::RenderWindow& window)
                 }
             }
         }
+        else if (socket.receive(recv) == sf::Socket::Disconnected)
+        {
+            std::cerr << "Disconnected from host. \n";
+            running = false;
+            break;
+        }
 
-        player->handleInput(entities, window);
-        player->update(dt, structures, entities, window);
         window.clear(sf::Color::Black);
-        drawPlayer(window, myState);
 
-        for(const auto& [name, ps] : playerStates) drawPlayer(window, ps);
+        if (window.hasFocus()) player->handleInput(entities, window);
+        player->update(dt, structures, entities, window);
+        player->draw(window);
+
+        for (const auto& s : structures) s->draw(window);
+        for (const auto& [name, ps] : playerStates) 
+        {
+            if (name != playerName) drawPlayer(window, ps);
+        }
+
         window.display();
+        sf::sleep(sf::milliseconds(5));
+
+        applyPlayerState(player, myState);
     }
 }
 
