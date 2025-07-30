@@ -8,7 +8,7 @@ class Animation
     public:
 
         Animation();
-        Animation(sf::Texture* texture, int frameCnt, float frameDuration, int frameWidth, int frameHeight);
+        Animation(sf::Texture* texture, int frameCnt, float frameDuration, int frameWidth, int frameHeight, int row);
 
         void update(float deltaTime);
         void applyToSprite(sf::Sprite& sprite);
@@ -28,6 +28,8 @@ class Animation
 
         int frameWidth;
         int frameHeight;
+
+        int row;
 };
 
 #endif

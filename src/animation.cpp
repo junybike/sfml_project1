@@ -2,8 +2,8 @@
 
 Animation::Animation() {}
 
-Animation::Animation(sf::Texture* t, int frames, float duration, int width, int height) 
-    : texture(t), frameCnt(frames), frameDuration(duration), curFrame(0), elapsedTime(0.f), frameWidth(width), frameHeight(height) {}
+Animation::Animation(sf::Texture* t, int frames, float duration, int width, int height, int row) 
+    : texture(t), frameCnt(frames), frameDuration(duration), curFrame(0), elapsedTime(0.f), frameWidth(width), frameHeight(height), row(row) {}
 
 void Animation::update(float dt)
 {
@@ -18,7 +18,7 @@ void Animation::update(float dt)
 void Animation::applyToSprite(sf::Sprite& sprite)
 {
     sprite.setTexture(*texture);
-    sprite.setTextureRect(sf::IntRect(curFrame * frameWidth, 0, frameWidth, frameHeight));
+    sprite.setTextureRect(sf::IntRect(curFrame * frameWidth, row * frameHeight, frameWidth, frameHeight));
 }
 
 void Animation::reset()

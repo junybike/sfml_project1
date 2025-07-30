@@ -3,19 +3,14 @@
 Player::Player(float x, float y) 
 {
     if (!texture.loadFromFile("assets/stickman/stickman.png")) std::cerr << "Error: Failed to load stickman.png" << std::endl;
-    if (!runTexture.loadFromFile("assets/stickman/stickman_run.png")) std::cerr << "Error: Failed to load stickman_run.png" << std::endl;
-    if (!idleTexture.loadFromFile("assets/stickman/stickman_idle.png")) std::cerr << "Error: Failed to load stickman_idle.png" << std::endl;
-    if (!hitTexture.loadFromFile("assets/stickman/stickman_hit.png")) std::cerr << "Error: Failed to load stickman_hit.png" << std::endl;
-    if (!kickTexture.loadFromFile("assets/stickman/stickman_kick.png")) std::cerr << "Error: Failed to load stickman_kick.png" << std::endl;
-    if (!shieldTexture.loadFromFile("assets/stickman/stickman_shield.png")) std::cerr << "Error: Failed to load stickman_shield.png" << std::endl;
-    if (!slideTexture.loadFromFile("assets/stickman/stickman_slide.png")) std::cerr << "Error: Failed to load stickman_slide.png" << std::endl;
+    if (!animation.loadFromFile("assets/stickman/stickman_ani.png")) std::cerr << "Error: Failed to load stickman_ani.png" << std::endl;
 
-    runAnimation = Animation(&runTexture, 8, 0.15f, 122, 171);
-    idleAnimation = Animation(&idleTexture, 8, 0.15f, 122, 171);
-    attackHitAnimation = Animation(&hitTexture, 4, 0.05f, 157, 171);
-    attackKickAnimation = Animation(&kickTexture, 2, 0.15f, 122, 171);
-    guardShieldAnimation = Animation(&shieldTexture, 2, 0.15f, 122, 171);
-    slideAnimation = Animation(&slideTexture, 8, 0.0625f, 142, 171);
+    runAnimation = Animation(&animation, 8, 0.15f, 122, 171, 3);
+    idleAnimation = Animation(&animation, 8, 0.15f, 122, 171, 1);
+    attackHitAnimation = Animation(&animation, 4, 0.05f, 157, 171, 0);
+    attackKickAnimation = Animation(&animation, 2, 0.15f, 122, 171, 2);
+    guardShieldAnimation = Animation(&animation, 2, 0.15f, 122, 171, 4);
+    slideAnimation = Animation(&animation, 8, 0.0625f, 142, 171, 5);
 
     sprite.setTexture(texture);
     sprite.setPosition(x, y);
@@ -275,5 +270,5 @@ std::string Player::getCurrentAnimation() const
 
 float Player::getAnimationTime() const
 {
-
+    return 0.f;
 }

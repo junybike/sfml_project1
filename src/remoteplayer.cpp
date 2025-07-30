@@ -15,6 +15,7 @@ void RemotePlayer::applyState(PlayerState& s)
 
 void RemotePlayer::draw(sf::RenderWindow& window)
 {
+    sprite.setPosition(state.position);
     sf::RectangleShape shape(sf::Vector2f(50.f, 50.f));
     shape.setPosition(state.position);
 

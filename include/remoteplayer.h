@@ -18,9 +18,10 @@ class RemotePlayer
         PlayerState getState() const;
 
     private:
- 
+
+        sf::Sprite sprite;
         PlayerState state;
-        float animationTime;
+        float animationTime = 0.f;
 
 };
 

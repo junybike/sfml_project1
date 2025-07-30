@@ -51,12 +51,7 @@ class Player : public Entity
         Animation attackKickAnimation;
         Animation guardShieldAnimation;
 
-        sf::Texture runTexture;
-        sf::Texture idleTexture;
-        sf::Texture slideTexture;
-        sf::Texture hitTexture;
-        sf::Texture kickTexture;
-        sf::Texture shieldTexture;
+        sf::Texture animation;
 };
 
 #endif
