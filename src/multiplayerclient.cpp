@@ -203,7 +203,7 @@ void MultiplayerClient::gameLoop(sf::RenderWindow& window)
 {
     sf::Clock clock;
     bool running = true;
-    std::map<std::string, PlayerState> playerStates;
+    std::map<std::string, RemotePlayer> remotePlayers;
 
     std::vector<Entity*> entities;
     player = new Player(100, 100);
@@ -229,6 +229,7 @@ void MultiplayerClient::gameLoop(sf::RenderWindow& window)
             else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) running = false;
         }
 
+        myState = getPlayerState(player, playerName);
         float dt = clock.restart().asSeconds();
 
         sf::Packet packet;
@@ -241,7 +242,8 @@ void MultiplayerClient::gameLoop(sf::RenderWindow& window)
         }
 
         sf::Packet recv;
-        if (socket.receive(recv) == sf::Socket::Done)
+        sf::Socket::Status status = socket.receive(recv);
+        if (status == sf::Socket::Done)
         {
             std::string msg;
             recv >> msg;
@@ -251,18 +253,17 @@ void MultiplayerClient::gameLoop(sf::RenderWindow& window)
                 sf::Uint32 cnt;
                 recv >> cnt;
 
-                playerStates.clear();
                 for (sf::Uint32 i = 0; i < cnt; i++)
                 {
                     std::string name;
                     PlayerState ps;
                     recv >> name >> ps;
 
-                    if (name != playerName) playerStates[name] = ps;
+                    remotePlayers[name].applyState(ps);
                 }
             }
         }
-        else if (socket.receive(recv) == sf::Socket::Disconnected)
+        else if (status == sf::Socket::Disconnected)
         {
             std::cerr << "Disconnected from host. \n";
             running = false;
@@ -276,15 +277,16 @@ void MultiplayerClient::gameLoop(sf::RenderWindow& window)
         player->draw(window);
 
         for (const auto& s : structures) s->draw(window);
-        for (const auto& [name, ps] : playerStates) 
+
+        for (auto& [name, rp] : remotePlayers) 
         {
-            if (name != playerName) drawPlayer(window, ps);
+            if (name == playerName) continue;
+            rp.update(dt);
+            rp.draw(window);
         }
 
         window.display();
         sf::sleep(sf::milliseconds(5));
-
-        applyPlayerState(player, myState);
     }
 }
 

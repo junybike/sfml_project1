@@ -14,6 +14,9 @@ class Animation
         void applyToSprite(sf::Sprite& sprite);
         void reset();
 
+        sf::Texture* getTexture() const;
+        void setTexture(const sf::Texture* texture);
+
     private:
 
         sf::Texture* texture;

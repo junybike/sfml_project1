@@ -31,6 +31,9 @@ class Player : public Entity
         bool getCanAttack();
         void setCanAttack(const bool option);
 
+        std::string getCurrentAnimation() const;
+        float getAnimationTime() const;
+
     private:
 
         float speed;
@@ -39,6 +42,7 @@ class Player : public Entity
         sf::Clock cooldownClock;
         bool canAttack;
 
+        float animationTime = 0.f;
         AnimationState curState;
         Animation idleAnimation;
         Animation runAnimation;

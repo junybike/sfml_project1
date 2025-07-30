@@ -9,6 +9,8 @@ PlayerState getPlayerState(Player* player, std::string name)
     state.health = player->getHealth();         
     state.facingRight = player->facingRight;
     state.canAttack = player->getCanAttack();
+    state.curAnimation = player->getCurrentAnimation();
+    state.animationTime = player->getAnimationTime();
     return state;
 }
 

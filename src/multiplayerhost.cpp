@@ -218,7 +218,7 @@ void MultiplayerHost::runGameLoop(sf::RenderWindow& window)
 {
     sf::Clock clock;
     bool running = true;
-    std::map<std::string, PlayerState> playerStates;
+    std::map<std::string, RemotePlayer> remotePlayers;
 
     std::vector<Entity*> entities;
     player = new Player(100, 100);
@@ -249,7 +249,9 @@ void MultiplayerHost::runGameLoop(sf::RenderWindow& window)
             if (event.type == sf::Event::Closed) window.close();
             else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) running = false;
         }
-
+        
+        myState = getPlayerState(player, "host");
+        remotePlayers["host"].applyState(myState);
         float dt = clock.restart().asSeconds();
         
         for (auto& c : clients)
@@ -265,7 +267,8 @@ void MultiplayerHost::runGameLoop(sf::RenderWindow& window)
                     std::string name;
                     PlayerState ps;
                     packet >> name >> ps;
-                    playerStates[name] = ps;
+
+                    remotePlayers[name].applyState(ps);
                 }
                 else if (msg == "LEAVE")
                 {
@@ -275,9 +278,15 @@ void MultiplayerHost::runGameLoop(sf::RenderWindow& window)
         }
 
         sf::Packet out;
-        out << std::string("ALL_STATE") << static_cast<sf::Uint32>(playerStates.size());
-        for (const auto& [name, state] : playerStates) out << name << state;
-        for (auto& c : clients) c->send(out);
+        out << std::string("ALL_STATE") << static_cast<sf::Uint32>(remotePlayers.size());
+        for (const auto& [name, rp] : remotePlayers)
+        {
+            out << name << rp.getState();
+        }
+        for (auto& c : clients) 
+        {
+            c->send(out);
+        }
 
         // playerStates[hostName] = getHostState();
         window.clear(sf::Color::Black);
@@ -287,18 +296,18 @@ void MultiplayerHost::runGameLoop(sf::RenderWindow& window)
         player->draw(window);
 
         for (const auto& s : structures) s->draw(window);
-        for (const auto& [name, state] : playerStates) 
+        for (auto& [name, rp] : remotePlayers) 
         {
-            if (name != "host") drawPlayer(window, state);
+            if (name == "host") continue;
+            rp.update(dt);
+            rp.draw(window);
         }
 
         window.display();
         sf::sleep(sf::milliseconds(5));
-
-        applyPlayerState(player, myState);
     }
 
     for (auto& c : clients) delete c;
     clients.clear();
-    playerStates.clear();
+    remotePlayers.clear();
 }

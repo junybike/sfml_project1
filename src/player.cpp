@@ -38,6 +38,7 @@ Player::Player(float x, float y)
 
 void Player::handleInput(std::vector<Entity*>& entities, sf::RenderWindow& window) 
 {
+    if (!window.hasFocus()) return;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && canAttack)
     {
         guardShield();
@@ -122,6 +123,7 @@ void Player::handleInput(std::vector<Entity*>& entities, sf::RenderWindow& windo
 
 void Player::update(float deltaTime, std::vector<Structure*>& structures, std::vector<Entity*>& entities, sf::RenderWindow& window) 
 {
+    animationTime += deltaTime;
     handleInput(entities, window);
     handleKb(deltaTime, structures);
     applyGravity(deltaTime, structures);
@@ -241,6 +243,7 @@ void Player::setAnimationState(AnimationState state)
 {
     if (curState == state) return;
     curState = state;
+    animationTime = 0.f;
 
     switch(state)
     {
@@ -258,4 +261,19 @@ bool Player::getCanAttack()
 void Player::setCanAttack(const bool option)
 {
     canAttack = option;
+}
+
+std::string Player::getCurrentAnimation() const
+{
+    if (curState == AnimationState::Idle) return "Idle";
+    else if (curState == AnimationState::Run) return "Run";
+    else if (curState == AnimationState::Slide) return "Slide";
+    else if (curState == AnimationState::AttackHit) return "AttackHit";
+    else if (curState == AnimationState::AttackKick) return "AttackKick";
+    else return "guardShield";
+}
+
+float Player::getAnimationTime() const
+{
+
 }

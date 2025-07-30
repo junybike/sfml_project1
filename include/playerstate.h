@@ -15,13 +15,16 @@ struct PlayerState
     int health;
     bool canAttack;
     bool facingRight;
+    std::string curAnimation;
+    float animationTime;
 
     friend sf::Packet& operator<<(sf::Packet& packet, const PlayerState& ps) 
     {
         return packet << ps.name 
                       << ps.position.x << ps.position.y
                       << ps.velocity.x << ps.velocity.y
-                      << ps.health << ps.facingRight << ps.canAttack;
+                      << ps.health << ps.facingRight 
+                      << ps.canAttack<< ps.curAnimation << ps.animationTime;
     }
 
     friend sf::Packet& operator>>(sf::Packet& packet, PlayerState& ps) 
@@ -29,7 +32,8 @@ struct PlayerState
         return packet >> ps.name 
                       >> ps.position.x >> ps.position.y
                       >> ps.velocity.x >> ps.velocity.y
-                      >> ps.health >> ps.facingRight >> ps.canAttack;
+                      >> ps.health >> ps.facingRight 
+                      >> ps.canAttack >> ps.curAnimation >> ps.animationTime;
     }
 };
 

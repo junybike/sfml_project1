@@ -4,6 +4,7 @@
 #include "popup.h"
 #include "playerstate.h"
 #include "player.h"
+#include "remoteplayer.h"
 
 #include <SFML/Network.hpp>
 #include <SFML/Graphics.hpp>
