@@ -21,6 +21,7 @@ void applyPlayerState(Player* player, const PlayerState& state)
     player->setHealth(state.health);
     player->facingRight = state.facingRight;
     player->setCanAttack(state.canAttack);
+    player->setCurrentAnimation(state.curAnimation);
 }
 
 void drawPlayer(sf::RenderWindow& window, const PlayerState& state)

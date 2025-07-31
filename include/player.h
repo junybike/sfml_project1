@@ -32,6 +32,7 @@ class Player : public Entity
         void setCanAttack(const bool option);
 
         std::string getCurrentAnimation() const;
+        void setCurrentAnimation(const std::string);
         float getAnimationTime() const;
 
     private:

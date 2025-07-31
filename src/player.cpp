@@ -267,6 +267,15 @@ std::string Player::getCurrentAnimation() const
     else if (curState == AnimationState::AttackKick) return "AttackKick";
     else return "guardShield";
 }
+void Player::setCurrentAnimation(const std::string ani)
+{
+    if (ani == "Idle") curState = AnimationState::Idle;
+    else if (ani == "Run") curState = AnimationState::Run;
+    else if (ani == "Slide") curState = AnimationState::Slide;
+    else if (ani == "AttackHit") curState = AnimationState::AttackHit;
+    else if (ani == "AttackKick") curState = AnimationState::AttackKick;
+    else if (ani == "guardShield") curState = AnimationState::guardShield;
+}
 
 float Player::getAnimationTime() const
 {
