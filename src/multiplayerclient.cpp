@@ -285,6 +285,17 @@ void MultiplayerClient::gameLoop(sf::RenderWindow& window)
             rp.draw(window);
         }
 
+        if (myState.isAttacking)
+        {
+            sf::FloatRect atkrange = player->getHitbox();
+            for (auto& [name, rp] : remotePlayers)
+            {
+                if (name == myState.name) continue;
+                sf::FloatRect hitbox = rp.getHitbox();
+                if (atkrange.intersects(hitbox)) std::cout << "HIT" << std::endl;
+            }
+        }
+
         window.display();
         sf::sleep(sf::milliseconds(5));
     }

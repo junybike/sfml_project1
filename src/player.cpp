@@ -46,6 +46,7 @@ void Player::handleInput(std::vector<Entity*>& entities, sf::RenderWindow& windo
         if (isOnGround())
         {
             canAttack = true;
+            isAttacking = false;
             velocity.x = 0;
         }
         else if (!canAttack) attackKick(entities, window);
@@ -58,7 +59,10 @@ void Player::handleInput(std::vector<Entity*>& entities, sf::RenderWindow& windo
             velocity.x = 0.f;
             setInvincible(false, 0);
         }
-        else slide();
+        else 
+        {
+            slide();
+        }
     } 
     else velocity.x = 0.f;
 
@@ -104,11 +108,13 @@ void Player::handleInput(std::vector<Entity*>& entities, sf::RenderWindow& windo
     {
         attackHit(entities, window);
         setAnimationState(AnimationState::AttackHit);
+        isAttacking = true;
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && canAttack && !isOnGround() && !isInvincible())
     {
         attackKick(entities, window);
         setAnimationState(AnimationState::AttackKick);
+        isAttacking = true;
     }
     if (abs(velocity.x) < 1.f && canAttack)
     {
@@ -179,6 +185,7 @@ void Player::attackHit(std::vector<Entity*>& entities, sf::RenderWindow& window)
     // if (!canAttack || cooldownClock.getElapsedTime().asSeconds() < 0.1f) return;
     // std::cout << "HIT" << std::endl;
     canAttack = false;
+    isAttacking = true;
     cooldownClock.restart();
     
     sf::FloatRect attackZone;
@@ -205,6 +212,7 @@ void Player::attackKick(std::vector<Entity*>& entities, sf::RenderWindow& window
     if (canAttack)
     {
         canAttack = false;
+        isAttacking = true;
         velocity.x = facingRight ? 500.f : -500.f;
     }
     
@@ -279,5 +287,14 @@ void Player::setCurrentAnimation(const std::string ani)
 
 float Player::getAnimationTime() const
 {
-    return 0.f;
+    return animationTime;
+}
+
+bool Player::getIsAttacking() const
+{
+    return isAttacking;
+}
+void Player::setIsAttacking(const bool option)
+{
+    isAttacking = option;
 }

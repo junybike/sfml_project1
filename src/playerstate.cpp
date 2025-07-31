@@ -11,6 +11,8 @@ PlayerState getPlayerState(Player* player, std::string name)
     state.canAttack = player->getCanAttack();
     state.curAnimation = player->getCurrentAnimation();
     state.animationTime = player->getAnimationTime();
+    state.isAttacking = player->getIsAttacking();
+
     return state;
 }
 
@@ -22,6 +24,7 @@ void applyPlayerState(Player* player, const PlayerState& state)
     player->facingRight = state.facingRight;
     player->setCanAttack(state.canAttack);
     player->setCurrentAnimation(state.curAnimation);
+    player->setIsAttacking(state.isAttacking);
 }
 
 void drawPlayer(sf::RenderWindow& window, const PlayerState& state)

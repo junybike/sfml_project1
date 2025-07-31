@@ -16,6 +16,7 @@ class RemotePlayer
         void draw(sf::RenderWindow& window);
 
         PlayerState getState() const;
+        sf::FloatRect getHitbox() const;
 
     private:
     

@@ -14,6 +14,7 @@ struct PlayerState
 
     int health;
     bool canAttack;
+    bool isAttacking = false;
     bool facingRight;
     std::string curAnimation;
     float animationTime;

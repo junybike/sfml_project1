@@ -48,3 +48,9 @@ PlayerState RemotePlayer::getState() const
 {
     return state;
 }
+
+sf::FloatRect RemotePlayer::getHitbox() const 
+{
+    sf::Vector2f pos = sprite.getPosition();
+    return sf::FloatRect(pos.x, pos.y, sprite.getGlobalBounds().width, sprite.getGlobalBounds().height);
+}
