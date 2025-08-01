@@ -27,13 +27,14 @@ Player::Player(float x, float y)
 
     maxHealth = 100;
     health = 100;
-    healthBar.setSize(sf::Vector2f(50.f, 5.f));
-    healthBar.setFillColor(sf::Color::Green);
+    //healthBar.setSize(sf::Vector2f(50.f, 5.f));
+    //healthBar.setFillColor(sf::Color::Green);
 }
 
 void Player::handleInput(std::vector<Entity*>& entities, sf::RenderWindow& window) 
 {
     if (!window.hasFocus()) return;
+    if (canAttack) isAttacking = false;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && canAttack)
     {
         guardShield();

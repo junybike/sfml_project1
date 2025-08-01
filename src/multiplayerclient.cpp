@@ -284,18 +284,7 @@ void MultiplayerClient::gameLoop(sf::RenderWindow& window)
             rp.update(dt);
             rp.draw(window);
         }
-
-        if (myState.isAttacking)
-        {
-            sf::FloatRect atkrange = player->getHitbox();
-            for (auto& [name, rp] : remotePlayers)
-            {
-                if (name == myState.name) continue;
-                sf::FloatRect hitbox = rp.getHitbox();
-                if (atkrange.intersects(hitbox)) std::cout << "HIT" << std::endl;
-            }
-        }
-
+        std::cout << "Host HP: " << myState.health << std::endl;
         window.display();
         sf::sleep(sf::milliseconds(5));
     }

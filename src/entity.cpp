@@ -10,9 +10,9 @@ void Entity::draw(sf::RenderWindow& window)
     window.draw(sprite);
 
     sf::Vector2f pos = sprite.getPosition();
-    healthBar.setPosition(pos.x, pos.y - 10.f);
+    // healthBar.setPosition(pos.x, pos.y - 10.f);
     float healthPercent = std::max(0.f, (float) health / maxHealth);
-    healthBar.setSize(sf::Vector2(50.f * healthPercent, 5.f));
+    // healthBar.setSize(sf::Vector2(50.f * healthPercent, 5.f));
 
     window.draw(healthBar);
 }

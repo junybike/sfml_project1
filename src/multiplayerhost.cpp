@@ -222,7 +222,8 @@ void MultiplayerHost::runGameLoop(sf::RenderWindow& window)
 
     std::vector<Entity*> entities;
     player = new Player(100, 100);
-    PlayerState myState = getPlayerState(player, "host");
+    PlayerState hostState = getPlayerState(player, "host");
+    
 
     std::vector<Structure*> structures = 
     {
@@ -250,8 +251,6 @@ void MultiplayerHost::runGameLoop(sf::RenderWindow& window)
             else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) running = false;
         }
         
-        myState = getPlayerState(player, "host");
-        remotePlayers["host"].applyState(myState);
         float dt = clock.restart().asSeconds();
         
         for (auto& c : clients)
@@ -277,17 +276,6 @@ void MultiplayerHost::runGameLoop(sf::RenderWindow& window)
             }
         }
 
-        sf::Packet out;
-        out << std::string("ALL_STATE") << static_cast<sf::Uint32>(remotePlayers.size());
-        for (const auto& [name, rp] : remotePlayers)
-        {
-            out << name << rp.getState();
-        }
-        for (auto& c : clients) 
-        {
-            c->send(out);
-        }
-
         // playerStates[hostName] = getHostState();
         window.clear(sf::Color::Black);
 
@@ -296,11 +284,67 @@ void MultiplayerHost::runGameLoop(sf::RenderWindow& window)
         player->draw(window);
 
         for (const auto& s : structures) s->draw(window);
+
+        hostState = getPlayerState(player, "host");
+        if (hostState.isAttacking)
+        {
+            sf::FloatRect hostAtkBox = player->getHitbox();
+            for (auto& [victimName, victimRP] : remotePlayers)
+            {
+                if (victimName == "host") continue;
+                sf::FloatRect victimBox = victimRP.getHitbox();
+                if (hostAtkBox.intersects(victimBox))
+                {
+                    PlayerState vs = victimRP.getState();
+                    vs.health -= 10;
+                    victimRP.applyState(vs);
+                }
+            }
+        }
+
+        // Check if remote players attack host
+        for (auto& [attackerName, attackerRP] : remotePlayers)
+        {
+            if (attackerName == "host") continue;
+            if (attackerRP.getState().isAttacking)
+            {
+                sf::FloatRect atkBox = attackerRP.getHitbox();
+                sf::FloatRect hostBox = player->getHitbox();
+                if (atkBox.intersects(hostBox))
+                {
+                    std::cout <<" HIT" << std::endl;
+                    hostState.health -= 10;
+                    hostState.velocity.x += attackerRP.getState().facingRight ? 200.f : -200.f;
+                    // update real player
+                }
+            }
+        }
+
+        hostState.position += hostState.velocity * dt;
+        hostState.velocity *= 0.9f;
+        applyPlayerState(player, hostState);
+
         for (auto& [name, rp] : remotePlayers) 
         {
-            if (name == "host") continue;
+            // if (name == "host") continue;
+            PlayerState ps = rp.getState();
+            ps.position += ps.velocity * dt;
+            ps.velocity *= 0.9f;
+            rp.applyState(ps);
             rp.update(dt);
             rp.draw(window);
+        }
+
+        sf::Packet out;
+        out << std::string("ALL_STATE") << static_cast<sf::Uint32>(remotePlayers.size() + 1);
+        out << "host" << hostState;
+        for (const auto& [name, rp] : remotePlayers)
+        {
+            out << name << rp.getState();
+        }
+        for (auto& c : clients) 
+        {
+            c->send(out);
         }
 
         window.display();

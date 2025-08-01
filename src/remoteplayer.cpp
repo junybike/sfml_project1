@@ -42,6 +42,17 @@ void RemotePlayer::draw(sf::RenderWindow& window)
 {
     sprite.setPosition(state.position);
     window.draw(sprite);
+
+    sf::RectangleShape healthBarBg(sf::Vector2f(50, 5));
+    healthBarBg.setFillColor(sf::Color::Red);
+    healthBarBg.setPosition(state.position.x - 25, state.position.y - 40);
+
+    sf::RectangleShape healthBar(sf::Vector2f(50.f * (state.health / 100.f), 5));
+    healthBar.setFillColor(sf::Color::Green);
+    healthBar.setPosition(state.position.x - 25, state.position.y - 40);
+
+    window.draw(healthBarBg);
+    window.draw(healthBar);
 }
 
 PlayerState RemotePlayer::getState() const

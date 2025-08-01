@@ -12,7 +12,7 @@ struct PlayerState
     sf::Vector2f position;
     sf::Vector2f velocity;
 
-    int health;
+    int health = 100;
     bool canAttack;
     bool isAttacking = false;
     bool facingRight;
