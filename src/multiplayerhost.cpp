@@ -222,7 +222,9 @@ void MultiplayerHost::runGameLoop(sf::RenderWindow& window)
 
     std::vector<Entity*> entities;
     player = new Player(100, 100);
-    PlayerState hostState = getPlayerState(player, "host");
+    
+    PlayerState hostState;
+    hostState = getPlayerState(player, "host");
     
 
     std::vector<Structure*> structures = 
@@ -252,7 +254,22 @@ void MultiplayerHost::runGameLoop(sf::RenderWindow& window)
         }
         
         float dt = clock.restart().asSeconds();
+        PlayerState fresh = getPlayerState(player, "host");
+
+        hostState.position = fresh.position;
+        hostState.curAnimation = fresh.curAnimation;
+        hostState.animationTime = fresh.animationTime;
+        hostState.isAttacking = fresh.isAttacking;
+        hostState.facingRight = fresh.facingRight;
+        hostState.canAttack = fresh.canAttack;
         
+
+        if (hostState.damageCooldown > 0.f) 
+        {
+            hostState.damageCooldown -= dt;
+            if (hostState.damageCooldown < 0.f) hostState.damageCooldown = 0.f;
+        }
+
         for (auto& c : clients)
         {
             sf::Packet packet;
@@ -267,7 +284,16 @@ void MultiplayerHost::runGameLoop(sf::RenderWindow& window)
                     PlayerState ps;
                     packet >> name >> ps;
 
-                    remotePlayers[name].applyState(ps);
+                    PlayerState existing = remotePlayers[name].getState();
+
+                    existing.position      = ps.position;      
+                    existing.curAnimation  = ps.curAnimation;
+                    existing.animationTime = ps.animationTime;
+                    existing.isAttacking   = ps.isAttacking;
+                    existing.facingRight   = ps.facingRight;
+                    existing.canAttack     = ps.canAttack;
+
+                    remotePlayers[name].applyState(existing);
                 }
                 else if (msg == "LEAVE")
                 {
@@ -286,7 +312,7 @@ void MultiplayerHost::runGameLoop(sf::RenderWindow& window)
         for (const auto& s : structures) s->draw(window);
 
         hostState = getPlayerState(player, "host");
-        if (hostState.isAttacking)
+        if (hostState.canAttack == false)
         {
             sf::FloatRect hostAtkBox = player->getHitbox();
             for (auto& [victimName, victimRP] : remotePlayers)
@@ -296,7 +322,12 @@ void MultiplayerHost::runGameLoop(sf::RenderWindow& window)
                 if (hostAtkBox.intersects(victimBox))
                 {
                     PlayerState vs = victimRP.getState();
+                    std::cout << vs.damageCooldown << std::endl;
+
+                    if (vs.damageCooldown > 0.f) continue;
                     vs.health -= 10;
+                    vs.damageCooldown = 0.3f;
+                    vs.velocity.x += hostState.facingRight ? 300.f : -300.f;
                     victimRP.applyState(vs);
                 }
             }
@@ -305,24 +336,32 @@ void MultiplayerHost::runGameLoop(sf::RenderWindow& window)
         // Check if remote players attack host
         for (auto& [attackerName, attackerRP] : remotePlayers)
         {
-            if (attackerName == "host") continue;
-            if (attackerRP.getState().isAttacking)
+            // if (attackerName == "host") continue;
+            if (attackerRP.getState().canAttack == false)
             {
+                // std::cout <<"Client Attacking" << std::endl;
                 sf::FloatRect atkBox = attackerRP.getHitbox();
                 sf::FloatRect hostBox = player->getHitbox();
-                if (atkBox.intersects(hostBox))
+                if (atkBox.intersects(hostBox) && hostState.canAttack)
                 {
-                    std::cout <<" HIT" << std::endl;
+                    
+                    std::cout << hostState.damageCooldown << std::endl;
+
+                    if (hostState.damageCooldown > 0.f) continue;
                     hostState.health -= 10;
-                    hostState.velocity.x += attackerRP.getState().facingRight ? 200.f : -200.f;
-                    // update real player
+                    hostState.damageCooldown = 0.3f;
+                    std::cout << hostState.damageCooldown << std::endl;
+                    hostState.velocity.x += hostState.facingRight ? 300.f : -300.f;
+                    
                 }
             }
         }
 
-        hostState.position += hostState.velocity * dt;
-        hostState.velocity *= 0.9f;
+        // hostState.position += hostState.velocity * dt;
+        // hostState.velocity *= 0.9f;
+
         applyPlayerState(player, hostState);
+        
 
         for (auto& [name, rp] : remotePlayers) 
         {
@@ -330,6 +369,13 @@ void MultiplayerHost::runGameLoop(sf::RenderWindow& window)
             PlayerState ps = rp.getState();
             ps.position += ps.velocity * dt;
             ps.velocity *= 0.9f;
+
+            if (ps.damageCooldown > 0.f) 
+            {
+                ps.damageCooldown -= dt;
+                if (ps.damageCooldown < 0.f) ps.damageCooldown = 0.f;
+            }
+            
             rp.applyState(ps);
             rp.update(dt);
             rp.draw(window);

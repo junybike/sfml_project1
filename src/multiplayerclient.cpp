@@ -258,8 +258,9 @@ void MultiplayerClient::gameLoop(sf::RenderWindow& window)
                     std::string name;
                     PlayerState ps;
                     recv >> name >> ps;
-
+                    
                     remotePlayers[name].applyState(ps);
+                    
                 }
             }
         }
@@ -284,7 +285,7 @@ void MultiplayerClient::gameLoop(sf::RenderWindow& window)
             rp.update(dt);
             rp.draw(window);
         }
-        std::cout << "Host HP: " << myState.health << std::endl;
+        // std::cout << "Host HP: " << myState.health << std::endl;
         window.display();
         sf::sleep(sf::milliseconds(5));
     }

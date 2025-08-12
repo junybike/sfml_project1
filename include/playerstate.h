@@ -19,13 +19,16 @@ struct PlayerState
     std::string curAnimation;
     float animationTime;
 
+    float damageCooldown = 0.f;
+
     friend sf::Packet& operator<<(sf::Packet& packet, const PlayerState& ps) 
     {
         return packet << ps.name 
                       << ps.position.x << ps.position.y
                       << ps.velocity.x << ps.velocity.y
                       << ps.health << ps.facingRight 
-                      << ps.canAttack<< ps.curAnimation << ps.animationTime;
+                      << ps.canAttack<< ps.curAnimation 
+                      << ps.animationTime << ps.damageCooldown;
     }
 
     friend sf::Packet& operator>>(sf::Packet& packet, PlayerState& ps) 
@@ -34,7 +37,8 @@ struct PlayerState
                       >> ps.position.x >> ps.position.y
                       >> ps.velocity.x >> ps.velocity.y
                       >> ps.health >> ps.facingRight 
-                      >> ps.canAttack >> ps.curAnimation >> ps.animationTime;
+                      >> ps.canAttack >> ps.curAnimation 
+                      >> ps.animationTime >> ps.damageCooldown;
     }
 };
 
@@ -43,8 +47,5 @@ PlayerState getPlayerState(Player* player, std::string name);
 void applyPlayerState(Player* player, const PlayerState& state);
 
 void drawPlayer(sf::RenderWindow& window, const PlayerState& state);
-
-
-
 
 #endif
