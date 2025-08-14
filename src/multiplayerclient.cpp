@@ -230,6 +230,7 @@ void MultiplayerClient::gameLoop(sf::RenderWindow& window)
         }
 
         myState = getPlayerState(player, playerName);
+
         float dt = clock.restart().asSeconds();
 
         sf::Packet packet;
@@ -260,7 +261,7 @@ void MultiplayerClient::gameLoop(sf::RenderWindow& window)
                     recv >> name >> ps;
                     
                     remotePlayers[name].applyState(ps);
-                    
+                    if (name == playerName) player->setHealth(ps.health);
                 }
             }
         }

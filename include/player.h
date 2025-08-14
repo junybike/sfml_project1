@@ -38,12 +38,16 @@ class Player : public Entity
         bool getIsAttacking() const;
         void setIsAttacking(const bool option);
 
+        float getDamageCooldown() const;
+        void setDamageCooldown(const float val);
+
     private:
 
         float speed;
         float jumpStrength;
 
         sf::Clock cooldownClock;
+        float damageCooldown;
         bool canAttack;
         bool isAttacking;
 

@@ -254,15 +254,6 @@ void MultiplayerHost::runGameLoop(sf::RenderWindow& window)
         }
         
         float dt = clock.restart().asSeconds();
-        PlayerState fresh = getPlayerState(player, "host");
-
-        hostState.position = fresh.position;
-        hostState.curAnimation = fresh.curAnimation;
-        hostState.animationTime = fresh.animationTime;
-        hostState.isAttacking = fresh.isAttacking;
-        hostState.facingRight = fresh.facingRight;
-        hostState.canAttack = fresh.canAttack;
-        
 
         if (hostState.damageCooldown > 0.f) 
         {
@@ -322,12 +313,12 @@ void MultiplayerHost::runGameLoop(sf::RenderWindow& window)
                 if (hostAtkBox.intersects(victimBox))
                 {
                     PlayerState vs = victimRP.getState();
-                    std::cout << vs.damageCooldown << std::endl;
+                    // std::cout << vs.damageCooldown << std::endl;
 
                     if (vs.damageCooldown > 0.f) continue;
                     vs.health -= 10;
                     vs.damageCooldown = 0.3f;
-                    vs.velocity.x += hostState.facingRight ? 300.f : -300.f;
+                    // vs.velocity.x += hostState.facingRight ? 300.f : -300.f;
                     victimRP.applyState(vs);
                 }
             }
@@ -344,31 +335,32 @@ void MultiplayerHost::runGameLoop(sf::RenderWindow& window)
                 sf::FloatRect hostBox = player->getHitbox();
                 if (atkBox.intersects(hostBox) && hostState.canAttack)
                 {
-                    
-                    std::cout << hostState.damageCooldown << std::endl;
-
                     if (hostState.damageCooldown > 0.f) continue;
                     hostState.health -= 10;
                     hostState.damageCooldown = 0.3f;
-                    std::cout << hostState.damageCooldown << std::endl;
-                    hostState.velocity.x += hostState.facingRight ? 300.f : -300.f;
-                    
+
+                    std::cout << hostState.health << std::endl;
+                    // hostState.velocity.x += hostState.facingRight ? 300.f : -300.f;
                 }
             }
         }
 
         // hostState.position += hostState.velocity * dt;
         // hostState.velocity *= 0.9f;
-
+        if (hostState.damageCooldown > 0.f) 
+        {
+            hostState.damageCooldown -= dt;
+            if (hostState.damageCooldown < 0.f) hostState.damageCooldown = 0.f;
+        }
         applyPlayerState(player, hostState);
         
 
         for (auto& [name, rp] : remotePlayers) 
         {
-            // if (name == "host") continue;
+            if (name == "host") continue;
             PlayerState ps = rp.getState();
-            ps.position += ps.velocity * dt;
-            ps.velocity *= 0.9f;
+            // ps.position += ps.velocity * dt;
+            // ps.velocity *= 0.9f;
 
             if (ps.damageCooldown > 0.f) 
             {
