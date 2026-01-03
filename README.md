@@ -1,4 +1,4 @@
-# SFML-Project 1: Stickman Game
+# SFML-Project 1: Stickman Fighter
 Simple 2D action game developed by SFML library in C++ 
 
 ## How to Play - Linux
