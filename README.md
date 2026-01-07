@@ -1,6 +1,8 @@
 # SFML-Project 1: Stickman Fighter
 Simple 2D action game developed by SFML library in C++ 
 
+### Need to revise: it has gone through a lot of experiments. Codes aren't looking great...
+
 ## How to Play - Linux
 1. Download the repository and unzip
 2. In the terminal, change the directory to the folder
